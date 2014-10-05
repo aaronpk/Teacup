@@ -1,53 +1,39 @@
   <div class="narrow">
     <?= partial('partials/header') ?>
 
-      <form role="form" style="margin-top: 20px;" id="note_form">
+      <form role="form" style="margin-top: 20px;" id="note_form" action="/post" method="post">
+
+        <h3>Caffeine</h3>
+        <ul class="caffeine">
+          <?php foreach(caffeine_options() as $val): ?>
+            <li><input type="submit" name="drank" class="btn btn-default" value="<?= $val ?>"></li>
+          <?php endforeach; ?>
+          <li>
+            <input type="text" class="form-control" name="custom_caffeine" placeholder="Custom" style="width: 72%; float: left; margin-right: 2px;">
+            <input type="submit" class="btn btn-default" value="Post" style="width: 26%; float: right;">
+          </li>
+        </ul>
+        <br>
+
+        <h3>Alcohol</h3>
+        <ul class="alcohol">
+          <?php foreach(alcohol_options() as $val): ?>
+            <li><input type="submit" name="drank" class="btn btn-default" value="<?= $val ?>"></li>
+          <?php endforeach; ?>
+          <li>
+            <input type="text" class="form-control" name="custom_alcohol" placeholder="Custom" style="width: 72%; float: left; margin-right: 2px;">
+            <input type="submit" class="btn btn-default" value="Post" style="width: 26%; float: right;">
+          </li>
+        </ul>
+        <br><br>
 
         <div class="form-group">
-          <label for="note_content"><code>content</code></label>
-          <textarea id="note_content" value="" class="form-control" style="height: 4em;"></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="note_in_reply_to"><code>in-reply-to</code> (optional, a URL you are replying to)</label>
-          <input type="text" id="note_in_reply_to" value="" class="form-control">
-        </div>
-
-        <div class="form-group">
-          <label for="note_category"><code>category</code> (optional, comma-separated list of tags)</label>
-          <input type="text" id="note_category" value="" class="form-control" placeholder="e.g. web, personal">
-        </div>
-
-        <div class="form-group">
-          <label for="note_slug"><code>slug</code> (optional)</label>
-          <input type="text" id="note_slug" value="" class="form-control">
-        </div>
-
-        <div class="form-group">
-          <label for="note_syndicate-to"><code>syndicate-to</code> <a href="javascript:reload_syndications()">(refresh)</a></label>
-          <div id="syndication-container">
-            <?php
-            if($this->syndication_targets) {
-              echo '<ul>';
-              foreach($this->syndication_targets as $syn) {
-                echo '<li><button data-syndication="'.$syn['target'].'" class="btn btn-default btn-block"><img src="'.$syn['favicon'].'" width="16" height="16"> '.$syn['target'].'</button></li>';
-              }
-              echo '</ul>';
-            } else {
-              ?><div class="bs-callout bs-callout-warning">No syndication targets were found on your site. 
-              You can provide a <a href="/docs#syndication">list of supported syndication targets</a> that will appear as checkboxes here.</div><?php
-            }
-            ?>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="note_location"><code>location</code></label>
+          <label for="note_location">Location</label>
           <input type="checkbox" id="note_location_chk" value="">
           <img src="/images/spinner.gif" id="note_location_loading" style="display: none;">
 
           <input type="text" id="note_location_msg" value="" class="form-control" placeholder="" readonly="readonly">
-          <input type="hidden" id="note_location">
+          <input type="hidden" id="note_location" name="location">
           <input type="hidden" id="location_enabled" value="<?= $this->location_enabled ?>">
 
           <div id="note_location_img" style="display: none;">
@@ -55,47 +41,39 @@
             <img src="" height="320" id="note_location_img_small" class="img-responsive">
           </div>
         </div>
-
-        <button class="btn btn-success" id="btn_post">Post</button>
       </form>
 
-      <div class="alert alert-success hidden" id="test_success"><strong>Success! We found a Location header in the response!</strong><br>Your post should be on your website now!<br><a href="" id="post_href">View your post</a></div>
-      <div class="alert alert-danger hidden" id="test_error"><strong>Your endpoint did not return a Location header.</strong><br>See <a href="/creating-a-micropub-endpoint">Creating a Micropub Endpoint</a> for more information.</div>
+      <?php if($this->micropub_endpoint): ?>
 
+        <?php if($this->test_response): ?>
+          <h4>Last response from your Micropub endpoint <span id="last_response_date">(<?= relative_time($this->response_date) ?>)</span></h4>
+        <?php endif; ?>
+        <pre id="test_response" style="width: 100%; min-height: 240px;"><?= htmlspecialchars($this->test_response) ?></pre>
 
-      <div id="last_request_container" style="display: none;">
-        <h4>Request made to your Micropub endpoint</h4>
-        <pre id="test_request" style="width: 100%; min-height: 140px;"></pre>
-      </div>
+        <div class="callout">
+          <p>Clicking "Post" will post this note to your Micropub endpoint. Below is some information about the request that will be made.</p>
 
-      <?php if($this->test_response): ?>
-        <h4>Last response from your Micropub endpoint <span id="last_response_date">(<?= relative_time($this->response_date) ?>)</span></h4>
+          <table class="table table-condensed">
+            <tr>
+              <td>me</td>
+              <td><code><?= session('me') ?></code> (should be your URL)</td>
+            </tr>
+            <tr>
+              <td>scope</td>
+              <td><code><?= $this->token_scope ?></code> (should be a space-separated list of permissions including "post")</td>
+            </tr>
+            <tr>
+              <td>micropub endpoint</td>
+              <td><code><?= $this->micropub_endpoint ?></code> (should be a URL)</td>
+            </tr>
+            <tr>
+              <td>access token</td>
+              <td>String of length <b><?= strlen($this->access_token) ?></b><?= (strlen($this->access_token) > 0) ? (', ending in <code>' . substr($this->access_token, -7) . '</code>') : '' ?> (should be greater than length 0)</td>
+            </tr>
+          </table>
+        </div>
+
       <?php endif; ?>
-      <pre id="test_response" style="width: 100%; min-height: 240px;"><?= htmlspecialchars($this->test_response) ?></pre>
-
-
-      <div class="callout">
-        <p>Clicking "Post" will post this note to your Micropub endpoint. Below is some information about the request that will be made.</p>
-
-        <table class="table table-condensed">
-          <tr>
-            <td>me</td>
-            <td><code><?= session('me') ?></code> (should be your URL)</td>
-          </tr>
-          <tr>
-            <td>scope</td>
-            <td><code><?= $this->token_scope ?></code> (should be a space-separated list of permissions including "post")</td>
-          </tr>
-          <tr>
-            <td>micropub endpoint</td>
-            <td><code><?= $this->micropub_endpoint ?></code> (should be a URL)</td>
-          </tr>
-          <tr>
-            <td>access token</td>
-            <td>String of length <b><?= strlen($this->access_token) ?></b><?= (strlen($this->access_token) > 0) ? (', ending in <code>' . substr($this->access_token, -7) . '</code>') : '' ?> (should be greater than length 0)</td>
-          </tr>
-        </table>
-      </div>
 
   </div>
 
@@ -216,10 +194,7 @@ $(function(){
     fetch_location();
   }
 
-  bind_syndication_buttons();
 });
-
-<?= partial('partials/syndication-js') ?>
 
 </script>
 

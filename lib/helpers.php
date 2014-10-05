@@ -175,3 +175,31 @@ function relative_time($date) {
   }
   return $rel->timeAgo($date);
 }
+
+function caffeine_options() {
+  return array(
+    'Coffee',
+    'Americano',
+    'Latte',
+    'Cappuccino',
+    'Espresso',
+    'Iced Coffee',
+    'Iced Americano',
+    'Iced Latte',
+    'Black Tea',
+    'Tea'
+  );
+}
+
+function alcohol_options() { 
+  return array(
+    'Beer',
+    'Cocktail',
+    'Mimosa',
+    'Champagne',
+    'Wine',
+    'Sake',
+    'Cider'
+  );
+}
+

@@ -38,25 +38,12 @@ $app->get('/new', function() use($app) {
     $entry = false;
     $photo_url = false;
 
-    $test_response = '';
-    if($user->last_micropub_response) {
-      try {
-        if(@json_decode($user->last_micropub_response)) {
-          $d = json_decode($user->last_micropub_response);
-          $test_response = $d->response;
-        }
-      } catch(Exception $e) {
-      }
-    }
-
     $html = render('new-post', array(
       'title' => 'New Post',
       'micropub_endpoint' => $user->micropub_endpoint,
       'token_scope' => $user->token_scope,
       'access_token' => $user->access_token,
       'response_date' => $user->last_micropub_response_date,
-      'syndication_targets' => json_decode($user->syndication_targets, true),
-      'test_response' => $test_response,
       'location_enabled' => $user->location_enabled
     ));
     $app->response()->body($html);
@@ -131,7 +118,7 @@ $app->get('/add-to-home', function() use($app) {
 });
 
 
-$app->post('/micropub/post', function() use($app) {
+$app->post('/post', function() use($app) {
   if($user=require_login($app)) {
     $params = $app->request()->params();
 
@@ -140,30 +127,30 @@ $app->post('/micropub/post', function() use($app) {
       return $v !== '';
     });
 
-    // Now send to the micropub endpoint
-    $r = micropub_post($user->micropub_endpoint, $params, $user->micropub_access_token);
-    $request = $r['request'];
-    $response = $r['response'];
+    print_r($params);
+    
 
-    $user->last_micropub_response = json_encode($r);
-    $user->last_micropub_response_date = date('Y-m-d H:i:s');
+    // Now send to the micropub endpoint
+    // $r = micropub_post($user->micropub_endpoint, $params, $user->micropub_access_token);
+    // $request = $r['request'];
+    // $response = $r['response'];
 
     // Check the response and look for a "Location" header containing the URL
-    if($response && preg_match('/Location: (.+)/', $response, $match)) {
-      $location = $match[1];
-      $user->micropub_success = 1;
-    } else {
-      $location = false;
-    }
+    // if($response && preg_match('/Location: (.+)/', $response, $match)) {
+    //   $location = $match[1];
+    //   $user->micropub_success = 1;
+    // } else {
+    //   $location = false;
+    // }
 
-    $user->save();
+    // $user->save();
 
     $app->response()->body(json_encode(array(
-      'request' => htmlspecialchars($request),
-      'response' => htmlspecialchars($response),
-      'location' => $location,
-      'error' => $r['error'],
-      'curlinfo' => $r['curlinfo']
+      // 'request' => htmlspecialchars($request),
+      // 'response' => htmlspecialchars($response),
+      // 'location' => $location,
+      // 'error' => $r['error'],
+      // 'curlinfo' => $r['curlinfo']
     )));
   }
 });
