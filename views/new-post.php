@@ -45,13 +45,8 @@
 
       <?php if($this->micropub_endpoint): ?>
 
-        <?php if($this->test_response): ?>
-          <h4>Last response from your Micropub endpoint <span id="last_response_date">(<?= relative_time($this->response_date) ?>)</span></h4>
-        <?php endif; ?>
-        <pre id="test_response" style="width: 100%; min-height: 240px;"><?= htmlspecialchars($this->test_response) ?></pre>
-
         <div class="callout">
-          <p>Clicking "Post" will post this note to your Micropub endpoint. Below is some information about the request that will be made.</p>
+          <p>Clicking an item will post this note to your Micropub endpoint. Below is some information about the request that will be made.</p>
 
           <table class="table table-condensed">
             <tr>
@@ -79,57 +74,6 @@
 
 <script>
 $(function(){
-
-  // ctrl-s to save
-  $(window).on('keydown', function(e){ 
-    if(e.keyCode == 83 && e.ctrlKey){
-      $("#btn_post").click();
-    } 
-  });
-
-  $("#btn_post").click(function(){
-
-    var syndications = [];
-    $("#syndication-container button.btn-info").each(function(i,btn){
-      syndications.push($(btn).data('syndication'));
-    });
-
-    $.post("/micropub/post", {
-      content: $("#note_content").val(),
-      'in-reply-to': $("#note_in_reply_to").val(),
-      location: $("#note_location").val(),
-      category: $("#note_category").val(),
-      slug: $("#note_slug").val(),
-      'syndicate-to': syndications.join(',')
-    }, function(data){
-      var response = JSON.parse(data);
-
-      if(response.location != false) {
-        $("#note_form").slideUp(200, function(){
-          $(window).scrollTop($("#test_success").position().top);
-        });
-
-        $("#test_success").removeClass('hidden');
-        $("#test_error").addClass('hidden');
-        $("#post_href").attr("href", response.location);
-
-        $("#note_content").val("");
-        $("#note_in_reply_to").val("");
-        $("#note_category").val("");
-        $("#note_slug").val("");
-
-      } else {
-        $("#test_success").addClass('hidden');
-        $("#test_error").removeClass('hidden');
-      }
-
-      $("#last_response_date").html("(just now)");
-      $("#test_request").html(response.request);
-      $("#last_request_container").show();
-      $("#test_response").html(response.response);
-    });
-    return false;
-  });
 
   function location_error(msg) {
     $("#note_location_msg").val(msg);

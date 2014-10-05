@@ -57,6 +57,10 @@ function normalizeMeURL($url) {
   return build_url($me);
 }
 
+function hostname($url) {
+  return parse_url($url, PHP_URL_HOST);
+}
+
 $app->get('/', function($format='html') use($app) {
   $res = $app->response();
 
@@ -106,7 +110,7 @@ $app->get('/auth/start', function() use($app) {
   // If the user has already signed in before and has a micropub access token, skip 
   // the debugging screens and redirect immediately to the auth endpoint.
   // This will still generate a new access token when they finish logging in.
-  $user = ORM::for_table('users')->where('url', $me)->find_one();
+  $user = ORM::for_table('users')->where('url', hostname($me))->find_one();
   if($user && $user->access_token && !array_key_exists('restart', $params)) {
 
     $user->micropub_endpoint = $micropubEndpoint;
@@ -121,7 +125,7 @@ $app->get('/auth/start', function() use($app) {
 
     if(!$user)
       $user = ORM::for_table('users')->create();
-    $user->url = $me;
+    $user->url = hostname($me);
     $user->date_created = date('Y-m-d H:i:s');
     $user->micropub_endpoint = $micropubEndpoint;
     $user->authorization_endpoint = $authorizationEndpoint;
@@ -260,7 +264,7 @@ $app->get('/auth/callback', function() use($app) {
   }
 
 
-  $user = ORM::for_table('users')->where('url', $me)->find_one();
+  $user = ORM::for_table('users')->where('url', hostname($me))->find_one();
   if($user) {
     // Already logged in, update the last login date
     $user->last_login = date('Y-m-d H:i:s');
@@ -270,7 +274,7 @@ $app->get('/auth/callback', function() use($app) {
   } else {
     // New user! Store the user in the database
     $user = ORM::for_table('users')->create();
-    $user->url = $me;
+    $user->url = hostname($me);
     $user->date_created = date('Y-m-d H:i:s');
     $user->last_login = date('Y-m-d H:i:s');
   }

@@ -55,6 +55,17 @@ function k($a, $k, $default=null) {
   }
 }
 
+function parse_geo_uri($uri) {
+  if(preg_match('/geo:([\-\+]?[0-9\.]+),([\-\+]?[0-9\.]+)/', $uri, $match)) {
+    return array(
+      'latitude' => (double)$match[1],
+      'longitude' => (double)$match[2],
+    );
+  } else {
+    return false;
+  }
+}
+
 function get_timezone($lat, $lng) {
   try {
     $ch = curl_init();

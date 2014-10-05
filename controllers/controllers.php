@@ -128,30 +128,63 @@ $app->post('/post', function() use($app) {
     });
 
     print_r($params);
-    
 
-    // Now send to the micropub endpoint
-    // $r = micropub_post($user->micropub_endpoint, $params, $user->micropub_access_token);
-    // $request = $r['request'];
-    // $response = $r['response'];
+    // Store the post in the database
+    $entry = ORM::for_table('entries')->create();
+    $entry->user_id = $user->id;
+    $entry->published = date('Y-m-d H:i:s');
 
-    // Check the response and look for a "Location" header containing the URL
-    // if($response && preg_match('/Location: (.+)/', $response, $match)) {
-    //   $location = $match[1];
-    //   $user->micropub_success = 1;
-    // } else {
-    //   $location = false;
-    // }
+    if(k($params, 'location') && $location=parse_geo_uri($params['location'])) {
+      $entry->latitude = $location['latitude'];
+      $entry->longitude = $location['longitude'];
+      if($timezone=get_timezone($location['latitude'], $location['longitude'])) {
+        $entry->timezone = $timezone->getName();
+        $entry->tz_offset = $timezone->getOffset(new DateTime());
+      }
+    } else {
+      $entry->timezone = 'UTC';
+      $entry->tz_offset = 0;
+    }
 
-    // $user->save();
+    if(k($params, 'drank')) {
+      $entry->content = $params['drank'];
+    } elseif(k($params, 'custom_caffeine')) {
+      $entry->content = $params['custom_caffeine'];
+    } elseif(k($params, 'custom_alcohol')) {
+      $entry->content = $params['custom_alcohol'];
+    }
 
-    $app->response()->body(json_encode(array(
-      // 'request' => htmlspecialchars($request),
-      // 'response' => htmlspecialchars($response),
-      // 'location' => $location,
-      // 'error' => $r['error'],
-      // 'curlinfo' => $r['curlinfo']
-    )));
+    $entry->save();
+
+    // Send to the micropub endpoint if one is defined, and store the result
+
+    if($user->micropub_endpoint) {
+      $mp_request = array(
+        'h' => 'entry',
+        'content' => $entry->content,
+        'location' => k($params, 'location')
+      );
+
+      $r = micropub_post($user->micropub_endpoint, $mp_request, $user->access_token);
+      $request = $r['request'];
+      $response = $r['response'];
+
+      $entry->micropub_response = $response;
+
+      // Check the response and look for a "Location" header containing the URL
+      if($response && preg_match('/Location: (.+)/', $response, $match)) {
+        $url = $match[1];
+        $user->micropub_success = 1;
+        $entry->micropub_success = 1;
+        $entry->canonical_url = $url;
+      }
+
+      $entry->save();
+    } else {
+      $url = Config::$base_url . $user->url . '/' . $entry->id;
+    }
+
+    $app->redirect($url);
   }
 });
 
