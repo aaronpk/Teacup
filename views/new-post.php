@@ -84,7 +84,7 @@
           </tr>
           <tr>
             <td>scope</td>
-            <td><code><?= $this->micropub_scope ?></code> (should be a space-separated list of permissions including "post")</td>
+            <td><code><?= $this->token_scope ?></code> (should be a space-separated list of permissions including "post")</td>
           </tr>
           <tr>
             <td>micropub endpoint</td>
@@ -92,7 +92,7 @@
           </tr>
           <tr>
             <td>access token</td>
-            <td>String of length <b><?= strlen($this->micropub_access_token) ?></b><?= (strlen($this->micropub_access_token) > 0) ? (', ending in <code>' . substr($this->micropub_access_token, -7) . '</code>') : '' ?> (should be greater than length 0)</td>
+            <td>String of length <b><?= strlen($this->access_token) ?></b><?= (strlen($this->access_token) > 0) ? (', ending in <code>' . substr($this->access_token, -7) . '</code>') : '' ?> (should be greater than length 0)</td>
           </tr>
         </table>
       </div>

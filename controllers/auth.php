@@ -47,8 +47,8 @@ function normalizeMeURL($url) {
     return false;
 
   // Invalid path
-  if($me['path'] != '/')
-    return false;
+  // if($me['path'] != '/')
+  //   return false;
 
   // query and fragment not allowed
   if(array_key_exists('query', $me) || array_key_exists('fragment', $me))
@@ -92,26 +92,27 @@ $app->get('/auth/start', function() use($app) {
   $tokenEndpoint = IndieAuth\Client::discoverTokenEndpoint($me);
   $micropubEndpoint = IndieAuth\Client::discoverMicropubEndpoint($me);
 
-  if($tokenEndpoint && $micropubEndpoint && $authorizationEndpoint) {
-    // Generate a "state" parameter for the request
-    $state = IndieAuth\Client::generateStateParameter();
-    $_SESSION['auth_state'] = $state;
+  // Generate a "state" parameter for the request
+  $state = IndieAuth\Client::generateStateParameter();
+  $_SESSION['auth_state'] = $state;
 
+  if($tokenEndpoint && $micropubEndpoint && $authorizationEndpoint) {
     $scope = 'post';
     $authorizationURL = IndieAuth\Client::buildAuthorizationURL($authorizationEndpoint, $me, buildRedirectURI(), clientID(), $state, $scope);
   } else {
-    $authorizationURL = false;
+    $authorizationURL = IndieAuth\Client::buildAuthorizationURL('https://indieauth.com/auth', $me, buildRedirectURI(), clientID(), $state);
   }
 
   // If the user has already signed in before and has a micropub access token, skip 
   // the debugging screens and redirect immediately to the auth endpoint.
   // This will still generate a new access token when they finish logging in.
   $user = ORM::for_table('users')->where('url', $me)->find_one();
-  if($user && $user->micropub_access_token && !array_key_exists('restart', $params)) {
+  if($user && $user->access_token && !array_key_exists('restart', $params)) {
 
     $user->micropub_endpoint = $micropubEndpoint;
     $user->authorization_endpoint = $authorizationEndpoint;
     $user->token_endpoint = $tokenEndpoint;
+    $user->type = $micropubEndpoint ? 'micropub' : 'local';
     $user->save();
 
     $app->redirect($authorizationURL, 301);
@@ -125,6 +126,7 @@ $app->get('/auth/start', function() use($app) {
     $user->micropub_endpoint = $micropubEndpoint;
     $user->authorization_endpoint = $authorizationEndpoint;
     $user->token_endpoint = $tokenEndpoint;
+    $user->type = $micropubEndpoint ? 'micropub' : 'local';
     $user->save();
 
     $html = render('auth_start', array(
@@ -132,6 +134,7 @@ $app->get('/auth/start', function() use($app) {
       'me' => $me,
       'authorizing' => $me,
       'meParts' => parse_url($me),
+      'micropubUser' => $authorizationEndpoint && $tokenEndpoint && $micropubEndpoint,
       'tokenEndpoint' => $tokenEndpoint,
       'micropubEndpoint' => $micropubEndpoint,
       'authorizationEndpoint' => $authorizationEndpoint,
@@ -199,47 +202,86 @@ $app->get('/auth/callback', function() use($app) {
   // An authorization code is in the query string, and we want to exchange that for an access token at the token endpoint.
 
   // Discover the endpoints
+  $authorizationEndpoint = IndieAuth\Client::discoverAuthorizationEndpoint($me);
   $micropubEndpoint = IndieAuth\Client::discoverMicropubEndpoint($me);
   $tokenEndpoint = IndieAuth\Client::discoverTokenEndpoint($me);
 
-  if($tokenEndpoint) {
-    $token = IndieAuth\Client::getAccessToken($tokenEndpoint, $params['code'], $params['me'], buildRedirectURI(), clientID(), $params['state'], true);
-
-  } else {
-    $token = array('auth'=>false, 'response'=>false);
-  }
-
   $redirectToDashboardImmediately = false;
 
-  // If a valid access token was returned, store the token info in the session and they are signed in
-  if(k($token['auth'], array('me','access_token','scope'))) {
-    $_SESSION['auth'] = $token['auth'];
-    $_SESSION['me'] = $params['me'];
+  if($tokenEndpoint) {
+    // Exchange auth code for an access token
+    $token = IndieAuth\Client::getAccessToken($tokenEndpoint, $params['code'], $params['me'], buildRedirectURI(), clientID(), $params['state'], true);
 
-    $user = ORM::for_table('users')->where('url', $me)->find_one();
-    if($user) {
-      // Already logged in, update the last login date
-      $user->last_login = date('Y-m-d H:i:s');
-      // If they have logged in before and we already have an access token, then redirect to the dashboard now
-      if($user->micropub_access_token)
-        $redirectToDashboardImmediately = true;
-    } else {
-      // New user! Store the user in the database
-      $user = ORM::for_table('users')->create();
-      $user->url = $me;
-      $user->date_created = date('Y-m-d H:i:s');
+    // If a valid access token was returned, store the token info in the session and they are signed in
+    if(k($token['auth'], array('me','access_token','scope'))) {
+      $_SESSION['auth'] = $token['auth'];
+      $_SESSION['me'] = $params['me'];
+
+      // TODO?
+      // This client requires the "post" scope.
+
+
+      // Make a request to the micropub endpoint to discover the syndication targets if any.
+      // Errors are silently ignored here. The user will be able to retry from the new post interface and get feedback.
+      // get_syndication_targets($user);
     }
-    $user->micropub_endpoint = $micropubEndpoint;
-    $user->access_token = $token['auth']['access_token'];
-    $user->token_scope = $token['auth']['scope'];
-    $user->token_response = $token['response'];
-    $user->save();
-    $_SESSION['user_id'] = $user->id();
 
-    // Make a request to the micropub endpoint to discover the syndication targets if any.
-    // Errors are silently ignored here. The user will be able to retry from the new post interface and get feedback.
-    get_syndication_targets($user);
+  } else {
+    // No token endpoint was discovered, instead, verify the auth code at the auth server or with indieauth.com
+
+    // Never show the intermediate login confirmation page if we just authenticated them instead of got authorization
+    $redirectToDashboardImmediately = true;
+
+    if(!$authorizationEndpoint) {
+      $authorizationEndpoint = 'https://indieauth.com/auth';
+    }
+
+    $token['auth'] = IndieAuth\Client::verifyIndieAuthCode($authorizationEndpoint, $params['code'], $params['me'], buildRedirectURI(), clientID(), $params['state']);
+
+    if(k($token['auth'], 'me')) {
+      $token['response'] = ''; // hack becuase the verify call doesn't actually return the real response
+      $token['auth']['scope'] = '';
+      $token['auth']['access_token'] = '';
+      $_SESSION['auth'] = $token['auth'];
+      $_SESSION['me'] = $params['me'];
+    }
   }
+
+
+  // Verify the login actually succeeded
+  if(!array_key_exists('me', $_SESSION)) {
+    $html = render('auth_error', array(
+      'title' => 'Sign-In Failed',
+      'error' => 'Unable to verify the sign-in attempt',
+      'errorDescription' => ''
+    ));
+    $app->response()->body($html);
+    return;
+  }
+
+
+  $user = ORM::for_table('users')->where('url', $me)->find_one();
+  if($user) {
+    // Already logged in, update the last login date
+    $user->last_login = date('Y-m-d H:i:s');
+    // If they have logged in before and we already have an access token, then redirect to the dashboard now
+    if($user->access_token)
+      $redirectToDashboardImmediately = true;
+  } else {
+    // New user! Store the user in the database
+    $user = ORM::for_table('users')->create();
+    $user->url = $me;
+    $user->date_created = date('Y-m-d H:i:s');
+    $user->last_login = date('Y-m-d H:i:s');
+  }
+  $user->micropub_endpoint = $micropubEndpoint;
+  $user->access_token = $token['auth']['access_token'];
+  $user->token_scope = $token['auth']['scope'];
+  $user->token_response = $token['response'];
+  $user->save();
+  $_SESSION['user_id'] = $user->id();
+
+
 
   unset($_SESSION['auth_state']);
 

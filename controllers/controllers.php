@@ -52,8 +52,8 @@ $app->get('/new', function() use($app) {
     $html = render('new-post', array(
       'title' => 'New Post',
       'micropub_endpoint' => $user->micropub_endpoint,
-      'micropub_scope' => $user->micropub_scope,
-      'micropub_access_token' => $user->micropub_access_token,
+      'token_scope' => $user->token_scope,
+      'access_token' => $user->access_token,
       'response_date' => $user->last_micropub_response_date,
       'syndication_targets' => json_decode($user->syndication_targets, true),
       'test_response' => $test_response,

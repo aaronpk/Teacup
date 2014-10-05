@@ -17,7 +17,7 @@
     <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1" media="(device-height: 568px)" />
 
     <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/bootstrap/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap-theme.css">
     <link rel="stylesheet" href="/css/style.css">
 
     <link rel="apple-touch-icon" sizes="57x57" href="/images/teacup-icon-57.png">

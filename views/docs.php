@@ -4,7 +4,7 @@
   <h2 id="introduction">Introduction</h2>
 
   <div class="col-xs-6 col-md-4" style="float: right;">
-    <span class="thumbnail"><img src="/images/quill-ui.png"></span>
+    <span class="thumbnail"><img src="/images/teacup-ui.png"></span>
   </div>
 
   <p>This is a simple <a href="http://indiewebcamp.com/micropub">Micropub</a> client for 
@@ -20,41 +20,17 @@
   <h2 id="endpoints">Configuring Endpoints</h2>
 
   <h3>Authorization Endpoint</h3>
+  <p><i>The authorization endpoint tells this app where to direct your browser to sign you in.</i></p>
   <?= partial('partials/auth-endpoint-help') ?>
 
   <h3>Token Endpoint</h3>
+  <p><i>The token endpoint is where this app will make a request to get an access token after obtaining authorization.</i></p>
   <?= partial('partials/token-endpoint-help') ?>
 
   <h3>Micropub Endpoint</h3>
+  <p><i>The Micropub endpoint is the URL this app will use to post new photos.</i></p>
   <?= partial('partials/micropub-endpoint-help') ?>
 
   <p>The <a href="/creating-a-micropub-endpoint">Creating a Micropub Endpoint</a> tutorial will walk you through how to handle incoming POST requests from apps like this.</p>
-
-
-
-  <h2 id="syndication">Syndication Targets</h2>
-
-  <p>You can provide a list of supported syndication targets that will appear as checkboxes when you are creating a new post.</p>
-
-  <p>To do this, your Micropub endpoint will need to respond to a GET request containing a query string of <code>q=syndicate-to</code>. This request will be made with the access token that was generated for this app, so you can choose which syndication targets you want to allow this app to use.</p>
-
-  <p>Below is the request and expected response that Quill looks for.</p>
-
-  <pre><code>GET /micropub?q=syndicate-to HTTP/1.1
-Authorization: Bearer xxxxxxxxxx
-
-HTTP/1.1 200 OK
-Content-type: application/x-www-form-urlencoded
-
-syndicate-to=syndicate-to=twitter.com%2Faaronpk%2Cfacebook.com%2Faaronpk
-</code></pre>
-
-  <p>The response should be a form-encoded reply with a single field, <code>syndicate-to</code>. The value is a comma-separated list of syndication targets. The actual values are up to your Micropub endpoint, but a good convention is to use the domain name of the service (e.g. twitter.com), or domain name and username (e.g. twitter.com/aaronpk).</p>
-
-  <p>If you do include the domain name, Quill will be able to show icons for recognized services next to the checkboxes.</p>
-
-  <p>Quill will check for your supported syndication targets when you sign in, but there is also a link on the new post screen to manually re-check if you'd like.</p>
-
-
 
 </div>

@@ -11,8 +11,6 @@ You can post what you're drinking to your own site, or you can post to an accoun
 
 ### /auth/start
 
-Copy from Quill.
-
 Discover IndieAuth + Micropub endpoints.
 
 #### Authorize
