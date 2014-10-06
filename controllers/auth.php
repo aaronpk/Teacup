@@ -61,6 +61,18 @@ function hostname($url) {
   return parse_url($url, PHP_URL_HOST);
 }
 
+function add_hcard_info($user, $hCard) {
+  if($user && $hCard) {
+    // Update the user's h-card info if present
+    if(array_key_exists('name', $hCard)) {
+      $user->name = $hCard['name'];
+    }
+    if(array_key_exists('photo', $hCard)) {
+      $user->photo_url = $hCard['photo'];
+    }
+  }  
+}
+
 $app->get('/', function($format='html') use($app) {
   $res = $app->response();
 
@@ -95,6 +107,7 @@ $app->get('/auth/start', function() use($app) {
   $authorizationEndpoint = IndieAuth\Client::discoverAuthorizationEndpoint($me);
   $tokenEndpoint = IndieAuth\Client::discoverTokenEndpoint($me);
   $micropubEndpoint = IndieAuth\Client::discoverMicropubEndpoint($me);
+  $hCard = IndieAuth\Client::getHCard($me);
 
   // Generate a "state" parameter for the request
   $state = IndieAuth\Client::generateStateParameter();
@@ -111,8 +124,10 @@ $app->get('/auth/start', function() use($app) {
   // the debugging screens and redirect immediately to the auth endpoint.
   // This will still generate a new access token when they finish logging in.
   $user = ORM::for_table('users')->where('url', hostname($me))->find_one();
+
   if($user && $user->access_token && !array_key_exists('restart', $params)) {
 
+    add_hcard_info($user, $hCard);
     $user->micropub_endpoint = $micropubEndpoint;
     $user->authorization_endpoint = $authorizationEndpoint;
     $user->token_endpoint = $tokenEndpoint;
@@ -125,6 +140,7 @@ $app->get('/auth/start', function() use($app) {
 
     if(!$user)
       $user = ORM::for_table('users')->create();
+    add_hcard_info($user, $hCard);
     $user->url = hostname($me);
     $user->date_created = date('Y-m-d H:i:s');
     $user->micropub_endpoint = $micropubEndpoint;

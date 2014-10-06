@@ -52,9 +52,11 @@
     <?= $html=$this->fetch($this->page . '.php') ?>
   </div>
 
-  <div class="narrow">
-    <pre><?= json_encode(Mf2\parse($html), JSON_PRETTY_PRINT) ?></pre>
-  </div>
+  <?php if(Config::$mf2Debug): ?>
+    <div class="narrow">
+      <pre><?= json_encode(Mf2\parse($html), JSON_PRETTY_PRINT) ?></pre>
+    </div>
+  <?php endif; ?>
 
   <div class="footer">
     <div class="nav">

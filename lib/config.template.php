@@ -10,5 +10,7 @@ class Config {
   public static $dbPassword = '';
 
   public static $jwtSecret = 'xxx';
+
+  public static $mf2Debug = false;
 }
 
