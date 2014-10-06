@@ -53,8 +53,16 @@ $app->get('/new', function() use($app) {
 $app->get('/new/options.json', function() use($app) {
   $app->response()['Content-Type'] = 'application/json';
   $app->response()->body(json_encode(array(
-    'Caffeine' => caffeine_options(),
-    'Alcohol' => alcohol_options()
+    'sections' => array(
+      array(
+        'title' => 'Caffeine',
+        'items' => array_map(function($e){ return array('title'=>$e); }, caffeine_options())
+      ),
+      array(
+        'title' => 'Alcohol',
+        'items' => array_map(function($e){ return array('title'=>$e); }, caffeine_options())
+      )
+    )
   )));
 });
 
