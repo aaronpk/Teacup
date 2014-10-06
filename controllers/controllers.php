@@ -60,7 +60,7 @@ $app->get('/new/options.json', function() use($app) {
       ),
       array(
         'title' => 'Alcohol',
-        'items' => array_map(function($e){ return array('title'=>$e); }, caffeine_options())
+        'items' => array_map(function($e){ return array('title'=>$e); }, alcohol_options())
       )
     )
   )));
