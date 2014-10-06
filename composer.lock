@@ -91,16 +91,16 @@
         },
         {
             "name": "indieauth/client",
-            "version": "0.1.7",
+            "version": "0.1.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/indieweb/indieauth-client-php.git",
-                "reference": "dec4f2f77ddaab11b00537db0a5fe52cc0bc3296"
+                "reference": "f979f8ee0fc6daaa6a393e7afdac894000d09544"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/indieweb/indieauth-client-php/zipball/dec4f2f77ddaab11b00537db0a5fe52cc0bc3296",
-                "reference": "dec4f2f77ddaab11b00537db0a5fe52cc0bc3296",
+                "url": "https://api.github.com/repos/indieweb/indieauth-client-php/zipball/f979f8ee0fc6daaa6a393e7afdac894000d09544",
+                "reference": "f979f8ee0fc6daaa6a393e7afdac894000d09544",
                 "shasum": ""
             },
             "require": {
@@ -126,7 +126,7 @@
                 }
             ],
             "description": "IndieAuth Client Library",
-            "time": "2014-10-06 06:25:22"
+            "time": "2014-10-06 07:37:10"
         },
         {
             "name": "indieweb/date-formatter",

@@ -64,12 +64,10 @@ function hostname($url) {
 function add_hcard_info($user, $hCard) {
   if($user && $hCard) {
     // Update the user's h-card info if present
-    if(array_key_exists('name', $hCard)) {
-      $user->name = $hCard['name'];
-    }
-    if(array_key_exists('photo', $hCard)) {
-      $user->photo_url = $hCard['photo'];
-    }
+    if(BarnabyWalters\Mf2\hasProp($hCard, 'name'))
+      $user->name = BarnabyWalters\Mf2\getPlaintext($hCard, 'name');
+    if(BarnabyWalters\Mf2\hasProp($hCard, 'photo'))
+      $user->photo_url = BarnabyWalters\Mf2\getPlaintext($hCard, 'photo');
   }  
 }
 
@@ -107,7 +105,7 @@ $app->get('/auth/start', function() use($app) {
   $authorizationEndpoint = IndieAuth\Client::discoverAuthorizationEndpoint($me);
   $tokenEndpoint = IndieAuth\Client::discoverTokenEndpoint($me);
   $micropubEndpoint = IndieAuth\Client::discoverMicropubEndpoint($me);
-  $hCard = IndieAuth\Client::getHCard($me);
+  $hCard = IndieAuth\Client::representativeHCard($me);
 
   // Generate a "state" parameter for the request
   $state = IndieAuth\Client::generateStateParameter();
