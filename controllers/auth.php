@@ -5,7 +5,7 @@ function buildRedirectURI() {
 }
 
 function clientID() {
-  return Config::$base_url;
+  return trim(Config::$base_url, '/'); // remove trailing slash from client_id
 }
 
 function build_url($parsed_url) { 

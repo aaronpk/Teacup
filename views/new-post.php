@@ -4,33 +4,42 @@
       <form role="form" style="margin-top: 20px;" id="note_form" action="/post" method="post">
 
         <h3>Caffeine</h3>
-        <ul class="caffeine">
+        <ul class="caffeine entry-buttons">
           <?php foreach(caffeine_options() as $val): ?>
             <li><input type="submit" name="drank" class="btn btn-default" value="<?= $val ?>"></li>
           <?php endforeach; ?>
-          <li>
-            <input type="text" class="form-control" name="custom_caffeine" placeholder="Custom" style="width: 72%; float: left; margin-right: 2px;">
-            <input type="submit" class="btn btn-default" value="Post" style="width: 26%; float: right;">
-          </li>
         </ul>
         <br>
 
         <h3>Alcohol</h3>
-        <ul class="alcohol">
+        <ul class="alcohol entry-buttons">
           <?php foreach(alcohol_options() as $val): ?>
             <li><input type="submit" name="drank" class="btn btn-default" value="<?= $val ?>"></li>
           <?php endforeach; ?>
+        </ul>
+        <br>
+
+        <h3>Drank</h3>
+        <ul class="other entry-buttons">
           <li>
-            <input type="text" class="form-control" name="custom_alcohol" placeholder="Custom" style="width: 72%; float: left; margin-right: 2px;">
-            <input type="submit" class="btn btn-default" value="Post" style="width: 26%; float: right;">
+            <input type="text" class="form-control text-custom-drank" name="custom_drank" placeholder="Custom" style="width: 72%; float: left; margin-right: 2px;">
+            <input type="submit" class="btn btn-default btn-custom-drank" value="Post" style="width: 26%; float: right;">
           </li>
         </ul>
         <br><br>
 
+        <h3>Ate</h3>
+        <ul class="other entry-buttons">
+          <li>
+            <input type="text" class="form-control text-custom-ate" name="custom_ate" placeholder="Custom" style="width: 72%; float: left; margin-right: 2px;">
+            <input type="submit" class="btn btn-default btn-custom-ate" value="Post" style="width: 26%; float: right;">
+          </li>
+        </ul>
+        <br><br>
+
+
         <div class="form-group">
-          <label for="note_location">Location</label>
-          <input type="checkbox" id="note_location_chk" value="">
-          <img src="/images/spinner.gif" id="note_location_loading" style="display: none;">
+          <h3>Location <input type="checkbox" id="note_location_chk" value=""><img src="/images/spinner.gif" id="note_location_loading" style="display: none;"></h3>
 
           <input type="text" id="note_location_msg" value="" class="form-control" placeholder="" readonly="readonly">
           <input type="hidden" id="note_location" name="location">
@@ -74,6 +83,19 @@
 
 <script>
 $(function(){
+
+  $(".text-custom-ate").keydown(function(e){
+    if(e.keyCode == 13) {
+      $(".btn-custom-ate").click();
+      return false;
+    }
+  });
+  $(".text-custom-drank").keydown(function(e){
+    if(e.keyCode == 13) {
+      $(".btn-custom-drank").click();
+      return false;
+    }
+  });
 
   function location_error(msg) {
     $("#note_location_msg").val(msg);

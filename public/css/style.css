@@ -190,16 +190,16 @@ body {
   }
 
 
-.caffeine, .alcohol {
+.entry-buttons {
   margin-bottom: 10px;
   list-style-type: none;
   padding-left: 0;
   max-width: 240px;
 }
-.caffeine li, .alcohol li {
+.entry-buttons li {
   margin-bottom: 6px;
 }
-.caffeine li input, .alcohol li input {
+.entry-buttons li input {
   width: 100%;
 }
 

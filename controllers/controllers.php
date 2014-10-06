@@ -146,10 +146,13 @@ $app->post('/post', function() use($app) {
 
     if(k($params, 'drank')) {
       $entry->content = $params['drank'];
-    } elseif(k($params, 'custom_caffeine')) {
-      $entry->content = $params['custom_caffeine'];
-    } elseif(k($params, 'custom_alcohol')) {
-      $entry->content = $params['custom_alcohol'];
+      $type = 'drink';
+    } elseif(k($params, 'custom_drank')) {
+      $entry->content = $params['custom_drank'];
+      $type = 'drink';
+    } elseif(k($params, 'custom_ate')) {
+      $entry->content = $params['custom_ate'];
+      $type = 'eat';
     }
 
     $entry->save();
@@ -159,7 +162,8 @@ $app->post('/post', function() use($app) {
     if($user->micropub_endpoint) {
       $mp_request = array(
         'h' => 'entry',
-        'content' => $entry->content,
+        'p3k-food' => $entry->content,
+        'p3k-type' => $type,
         'location' => k($params, 'location')
       );
 
@@ -175,6 +179,8 @@ $app->post('/post', function() use($app) {
         $user->micropub_success = 1;
         $entry->micropub_success = 1;
         $entry->canonical_url = $url;
+      } else {
+        $entry->micropub_success = 0;
       }
 
       $entry->save();
