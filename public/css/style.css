@@ -202,3 +202,73 @@ body {
 .caffeine li input, .alcohol li input {
   width: 100%;
 }
+
+
+
+/**
+ entries
+ */
+
+ul.entries {
+  list-style-type: none;
+  padding-left: 0;
+}
+ul.entries li {
+  margin-left: 0;
+  margin-bottom: 20px;
+  -webkit-box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.5);
+  -moz-box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.5);
+  box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.5);
+}
+
+ul.entries .author {
+  background-color: #e3f0d0;
+  border-bottom: 1px #d1e4b6 solid;
+  display: block;
+}
+
+ul.entries .author {
+  padding: 12px;
+}
+ul.entries .content {
+  padding: 12px 12px 4px 12px;
+}
+ul.entries .date, ul.entries .location {
+  padding-left: 12px;
+}
+ul.entries .date {
+  padding-bottom: 12px;
+}
+
+ul.entries .author .photo {
+  float: left;
+}
+ul.entries .author .photo img {
+  border: 1px #91af67 solid;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  margin-right: 7px;
+}
+ul.entries .author .name {
+  font-weight: bold;
+}
+ul.entries .author a {
+  color: #67863c;
+}
+ul.entries .author .url {
+  color: #777;
+  display: block;
+}
+
+ul.entries .location {
+  color: #999;
+}
+
+ul.entries .date a {
+  color: #999;
+}
+
+ul.entries .content {
+  font-size: 22px;
+}

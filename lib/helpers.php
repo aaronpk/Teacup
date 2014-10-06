@@ -187,6 +187,17 @@ function relative_time($date) {
   return $rel->timeAgo($date);
 }
 
+function entry_url($entry, $user) {
+  return $entry->canonical_url ?: Config::$base_url . $user->url . '/' . $entry->id;
+}
+
+function entry_date($entry, $user) {
+  $date = new DateTime($entry->published);
+  $tz = new DateTimeZone($entry->timezone);
+  $date->setTimeZone($tz);
+  return $date;
+}
+
 function caffeine_options() {
   return array(
     'Coffee',

@@ -33,19 +33,24 @@ If a token endpoint is found, get an access token from it.
 
 If no token endpoint is found, verify the code with indieauth.com and create an account for the user.
 
-### /post/new
+### /new
 
 The signed-in view used to post new content.
 
 Show the list of drinks that can be posted.
 
-### /post/submit
+### /post
 
 The form submits here. Saves the post in the database, then tries to make a micropub request if necessary. If the micropub request succeeds, updates the post with the canonical URL in the response.
 
 ### /{domain}
 
 Show feed of the user's recent posts. Posts include a link to the canonical URL if appropriate.
+
+
+### /{domain}/{entry}
+
+Permalinks for individual entries.
 
 
 ### /signout

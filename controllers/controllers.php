@@ -127,8 +127,6 @@ $app->post('/post', function() use($app) {
       return $v !== '';
     });
 
-    print_r($params);
-
     // Store the post in the database
     $entry = ORM::for_table('entries')->create();
     $entry->user_id = $user->id;
@@ -186,5 +184,44 @@ $app->post('/post', function() use($app) {
 
     $app->redirect($url);
   }
+});
+
+$app->get('/:domain', function($domain) use($app) {
+  $user = ORM::for_table('users')->where('url', $domain)->find_one();
+  if(!$user) {
+    $app->notFound();
+    return;
+  }
+
+  $entries = ORM::for_table('entries')->where('user_id', $user->id)->find_many();
+
+  $html = render('entries', array(
+    'title' => 'Teacup',
+    'entries' => $entries,
+    'user' => $user
+  ));
+  $app->response()->body($html);
+});
+
+
+$app->get('/:domain/:entry', function($domain, $entry_id) use($app) {
+  $user = ORM::for_table('users')->where('url', $domain)->find_one();
+  if(!$user) {
+    $app->notFound();
+    return;
+  }
+
+  $entry = ORM::for_table('entries')->where('user_id', $user->id)->where('id', $entry_id)->find_one();
+  if(!$entry) {
+    $app->notFound();
+    return;
+  }
+
+  $html = render('entry', array(
+    'title' => 'Teacup',
+    'entry' => $entry,
+    'user' => $user
+  ));
+  $app->response()->body($html);
 });
 
