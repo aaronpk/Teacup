@@ -193,18 +193,43 @@ $app->post('/post', function() use($app) {
 });
 
 $app->get('/:domain', function($domain) use($app) {
+  $params = $app->request()->params();
+
   $user = ORM::for_table('users')->where('url', $domain)->find_one();
   if(!$user) {
     $app->notFound();
     return;
   }
 
-  $entries = ORM::for_table('entries')->where('user_id', $user->id)->find_many();
+  $per_page = 10;
+
+  $entries = ORM::for_table('entries')->where('user_id', $user->id);
+  if(array_key_exists('before', $params)) {
+    $entries->where_lte('id', $params['before']);
+  }
+  $entries = $entries->limit($per_page)->order_by_desc('published')->find_many();
+
+  $older = ORM::for_table('entries')->where('user_id', $user->id)
+    ->where_lt('id', $entries[count($entries)-1]->id)->order_by_desc('published')->find_one();
+
+  $newer = ORM::for_table('entries')->where('user_id', $user->id)
+    ->where_gte('id', $entries[0]->id)->order_by_asc('published')->offset($per_page)->find_one();
+
+  if(!$newer) {
+    // no new entry was found at the specific offset, so find the newest post to link to instead
+    $newer = ORM::for_table('entries')->where('user_id', $user->id)
+      ->order_by_desc('published')->limit(1)->find_one();
+
+    if($newer->id == $entries[0]->id)
+      $newer = false;
+  }
 
   $html = render('entries', array(
     'title' => 'Teacup',
     'entries' => $entries,
-    'user' => $user
+    'user' => $user,
+    'older' => ($older ? $older->id : false),
+    'newer' => ($newer ? $newer->id : false)
   ));
   $app->response()->body($html);
 });

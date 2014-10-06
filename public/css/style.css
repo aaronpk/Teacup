@@ -206,6 +206,93 @@ body {
 
 
 /**
+ * Site Navigation Buttons
+ */
+.site-navigation {
+  padding-bottom: 10px;
+  font-size: 13px;
+  text-align: center;
+}
+.site-navigation ul {
+  list-style-type: none;
+  margin: 0;
+}
+.site-navigation .prev {
+  float: left;
+}
+.site-navigation .next {
+  float: right;
+}
+.site-navigation::after {
+  clear: both;
+  display: table;
+  content: "";
+}
+.site-navigation .disabled {
+  color: #ccc;
+}
+
+.site-navigation a.up {
+  height: 1.5em;
+  font-size: 10px;
+}
+.site-navigation a.up abbr {
+  padding-top: 1em;
+  display: block;
+  font-size: 14px;
+}
+
+/* Paging Buttons */
+/* Thanks tantek.com for the design inspiration */
+a.prev, a.next {
+  font-size: 10px;
+  width: 11.4em;
+  height: 6.5em;
+  padding: 0.2em 0 3em 0.1em;
+  margin-right: .3em;
+  text-align: center;
+  background: #d9d9d9;
+  border-radius: 1em;
+  border: .1em solid #CCC;
+  -webkit-border-radius: 1em;
+  -moz-border-radius: 1em;
+  line-height: 3em;
+}
+a.prev:hover, a.next:hover, 
+a.prev.hover, a.next.hover {
+  text-decoration: none;
+  background: #c9c9c9;
+  border-color: #AAA;
+}
+a.prev.disabled, a.next.disabled, 
+a.prev.disabled.hover, a.next.disabled.hover,
+a.prev.disabled:hover, a.next.disabled:hover {
+  text-decoration: none;
+  background: #f0f0f0;
+  border-color: #d9d9d9;
+  cursor: default;
+}
+a.prev.disabled abbr, a.next.disabled abbr, a.prev.disabled span, a.next.disabled span {
+  cursor: default;
+}
+a.prev abbr, a.next abbr {
+  display: block;
+  border-bottom: 0;
+  cursor: pointer;
+  font-size: 4em;
+  vertical-align: bottom;
+}
+a.prev span, a.next span {
+  font-size: 1.8em;
+  line-height: 1.2em;
+}
+
+
+
+
+
+
+/**
  entries
  */
 
