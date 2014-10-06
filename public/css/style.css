@@ -301,11 +301,16 @@ ul.entries {
   padding-left: 0;
 }
 ul.entries li {
+  position: relative;
   margin-left: 0;
   margin-bottom: 20px;
   -webkit-box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.5);
   -moz-box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.5);
   box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.5);
+}
+ul.entries .map-img {
+  position: absolute;
+  right: 0;
 }
 
 ul.entries .author {

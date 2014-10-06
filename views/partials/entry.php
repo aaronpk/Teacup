@@ -1,5 +1,9 @@
 <li class="h-entry">
 
+  <?php if($this->entry->latitude): ?>
+    <img src="/map.png?latitude=<?= $this->entry->latitude ?>&amp;longitude=<?= $this->entry->longitude ?>" class="map-img">
+  <?php endif; ?>
+
   <div class="author h-card p-author">
     <a class="photo" href="http://<?= $this->user->url ?>"><img src="<?= $this->user->photo_url ?>" class="u-photo" height="50" width="50" alt="<?= $this->user->url ?>"></a> 
     <a class="name p-name" href="http://<?= $this->user->url ?>"><?= $this->user->name ?></a>

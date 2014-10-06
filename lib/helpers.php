@@ -169,8 +169,8 @@ function get_syndication_targets(&$user) {
   );
 }
 
-function static_map($latitude, $longitude, $height=180, $width=700, $zoom=14) {
-  return 'http://static-maps.pdx.esri.com/img.php?marker[]=lat:' . $latitude . ';lng:' . $longitude . ';icon:small-blue-cutout&basemap=gray&width=' . $width . '&height=' . $height . '&zoom=' . $zoom;
+function static_map($latitude, $longitude, $height=174, $width=300, $zoom=14) {
+  return 'http://static-maps.pdx.esri.com/img.php?marker[]=lat:' . $latitude . ';lng:' . $longitude . ';icon:small-green-cutout&basemap=topo&width=' . $width . '&height=' . $height . '&zoom=' . $zoom;
 }
 
 function relative_time($date) {

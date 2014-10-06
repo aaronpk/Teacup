@@ -50,7 +50,16 @@ $app->get('/new', function() use($app) {
   }
 });
 
-$app->get('/new/options.json', function() use($app) {
+$app->get('/pebble/settings', function() use($app) {
+  if($user=require_login($app)) {
+    $html = render('pebble-settings', array(
+      'title' => 'Pebble Settings'
+    ));
+    $app->response()->body($html);
+  }
+});
+
+$app->get('/pebble/options.json', function() use($app) {
   $app->response()['Content-Type'] = 'application/json';
   $app->response()->body(json_encode(array(
     'sections' => array(
@@ -207,6 +216,18 @@ $app->post('/post', function() use($app) {
   }
 });
 
+
+$app->get('/map.png', function() use($app) {
+  $params = $app->request()->params();
+  $url = static_map($params['latitude'], $params['longitude']);
+  $ch = curl_init($url);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  $img = curl_exec($ch);
+  $app->response()['Content-type'] = 'image/png';
+  $app->response()->body($img);
+});
+
+
 $app->get('/:domain', function($domain) use($app) {
   $params = $app->request()->params();
 
@@ -270,4 +291,7 @@ $app->get('/:domain/:entry', function($domain, $entry_id) use($app) {
   ));
   $app->response()->body($html);
 });
+
+
+
 
