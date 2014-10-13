@@ -182,6 +182,7 @@ $app->post('/post', function() use($app) {
     $entry->save();
 
     // Send to the micropub endpoint if one is defined, and store the result
+    $url = false;
 
     if($user->micropub_endpoint) {
       $mp_request = array(
@@ -208,11 +209,15 @@ $app->post('/post', function() use($app) {
       }
 
       $entry->save();
-    } else {
-      $url = Config::$base_url . $user->url . '/' . $entry->id;
     }
 
-    $app->redirect($url);
+    if($url) {
+      $app->redirect($url);
+    } else {
+      // TODO: Redirect to an error page or show an error on the teacup post page
+      $url = Config::$base_url . $user->url . '/' . $entry->id;
+      $app->redirect($url);
+    }
   }
 });
 

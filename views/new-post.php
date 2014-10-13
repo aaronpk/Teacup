@@ -74,6 +74,10 @@
               <td>access token</td>
               <td>String of length <b><?= strlen($this->access_token) ?></b><?= (strlen($this->access_token) > 0) ? (', ending in <code>' . substr($this->access_token, -7) . '</code>') : '' ?> (should be greater than length 0)</td>
             </tr>
+            <tr>
+              <td>p3k-food</td>
+              <td>The button you tap (or your custom text) will be sent to your Micropub endpoint in a field named <code>p3k-food</code></td>
+            </tr>
           </table>
         </div>
 
