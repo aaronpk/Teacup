@@ -24,6 +24,14 @@ function require_login(&$app) {
   }
 }
 
+function get_login(&$app) {
+  if(array_key_exists('user_id', $_SESSION)) {
+    return ORM::for_table('users')->find_one($_SESSION['user_id']);
+  } else {
+    return false;
+  }
+}
+
 function generate_login_token() {
   return JWT::encode(array(
     'user_id' => $_SESSION['user_id'],
@@ -51,9 +59,23 @@ $app->get('/new', function() use($app) {
 });
 
 $app->get('/pebble/settings', function() use($app) {
+  $html = render('pebble-settings-login', array(
+    'title' => 'Log In'
+  ));
+  $app->response()->body($html);
+});
+
+$app->get('/pebble/settings/finished', function() use($app) {
   if($user=require_login($app)) {
+    $token = JWT::encode(array(
+      'user_id' => $_SESSION['user_id'],
+      'me' => $_SESSION['me'],
+      'created_at' => time()
+    ), Config::$jwtSecret);
+    
     $html = render('pebble-settings', array(
-      'title' => 'Pebble Settings'
+      'title' => 'Pebble Settings',
+      'token' => $token
     ));
     $app->response()->body($html);
   }

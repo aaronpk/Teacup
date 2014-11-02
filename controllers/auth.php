@@ -110,6 +110,13 @@ $app->get('/auth/start', function() use($app) {
   // Generate a "state" parameter for the request
   $state = IndieAuth\Client::generateStateParameter();
   $_SESSION['auth_state'] = $state;
+  
+  // Store whether to return to the Pebble settings tab or the new post page after signing in
+  if(array_key_exists('redirect', $params) && $params['redirect'] == 'settings') {
+    $_SESSION['redirect_after_login'] = '/pebble/settings/finished';
+  } else {
+    $_SESSION['redirect_after_login'] = '/new';
+  }
 
   if($tokenEndpoint && $micropubEndpoint && $authorizationEndpoint) {
     $scope = 'post';
@@ -224,7 +231,7 @@ $app->get('/auth/callback', function() use($app) {
   $micropubEndpoint = IndieAuth\Client::discoverMicropubEndpoint($me);
   $tokenEndpoint = IndieAuth\Client::discoverTokenEndpoint($me);
 
-  $redirectToDashboardImmediately = false;
+  $skipDebugScreen = false;
 
   if($tokenEndpoint) {
     // Exchange auth code for an access token
@@ -248,7 +255,7 @@ $app->get('/auth/callback', function() use($app) {
     // No token endpoint was discovered, instead, verify the auth code at the auth server or with indieauth.com
 
     // Never show the intermediate login confirmation page if we just authenticated them instead of got authorization
-    $redirectToDashboardImmediately = true;
+    $skipDebugScreen = true;
 
     if(!$authorizationEndpoint) {
       $authorizationEndpoint = 'https://indieauth.com/auth';
@@ -284,7 +291,7 @@ $app->get('/auth/callback', function() use($app) {
     $user->last_login = date('Y-m-d H:i:s');
     // If they have logged in before and we already have an access token, then redirect to the dashboard now
     if($user->access_token)
-      $redirectToDashboardImmediately = true;
+      $skipDebugScreen = true;
   } else {
     // New user! Store the user in the database
     $user = ORM::for_table('users')->create();
@@ -303,8 +310,8 @@ $app->get('/auth/callback', function() use($app) {
 
   unset($_SESSION['auth_state']);
 
-  if($redirectToDashboardImmediately) {
-    $app->redirect('/new', 301);
+  if($skipDebugScreen) {
+    $app->redirect($_SESSION['redirect_after_login'], 301);
   } else {
     $html = render('auth_callback', array(
       'title' => 'Sign In',
@@ -314,7 +321,8 @@ $app->get('/auth/callback', function() use($app) {
       'tokenEndpoint' => $tokenEndpoint,
       'auth' => $token['auth'],
       'response' => $token['response'],
-      'curl_error' => (array_key_exists('error', $token) ? $token['error'] : false)
+      'curl_error' => (array_key_exists('error', $token) ? $token['error'] : false),
+      'redirect' => $_SESSION['redirect_after_login']
     ));
     $app->response()->body($html);
   }
