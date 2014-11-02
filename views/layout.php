@@ -26,7 +26,7 @@
     <link rel="apple-touch-icon" sizes="114x114" href="/images/teacup-icon-114.png">
     <link rel="apple-touch-icon" sizes="144x144" href="/images/teacup-icon-144.png">
 
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/images/teacup-16px.png" type="image/png">
 
     <script src="/js/jquery-1.7.1.min.js"></script>
   </head>
