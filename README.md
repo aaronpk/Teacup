@@ -72,7 +72,7 @@ By contributing to this project, you agree to irrevocably release your contribut
 
 ## License
 
-Copyright 2013 by Aaron Parecki
+Copyright 2014 by Aaron Parecki
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
