@@ -4,5 +4,5 @@
 var options = {
   token: '<?= $this->token ?>'
 };
-document.location = 'pebblejs://close#' + encodeURIComponent(JSON.stringify(options));
+location.href = 'pebblejs://close#' + encodeURIComponent(JSON.stringify(options));
 </script>
