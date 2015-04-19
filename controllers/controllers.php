@@ -280,7 +280,10 @@ $app->get('/:domain/:entry', function($domain, $entry_id) use($app) {
     'user' => $user
   ));
   $app->response()->body($html);
-});
+})->conditions(array(
+  'domain' => '[a-zA-Z0-9\.-]+\.[a-z]+',
+  'entry' => '\d+'
+));
 
 
 
