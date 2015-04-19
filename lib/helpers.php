@@ -263,7 +263,7 @@ function query_user_frequent_options($type, $user_id) {
       AND published > :published
     GROUP BY content
     ORDER BY COUNT(1) DESC
-    LIMIT 2
+    LIMIT 4
   ', ['user_id'=>$user_id, 'type'=>$type, 'published'=>$published])->find_many();
   foreach($optionsQ as $o) {
     $options[] = [
