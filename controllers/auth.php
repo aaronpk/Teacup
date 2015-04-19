@@ -4,8 +4,12 @@ function buildRedirectURI() {
   return Config::$base_url . 'auth/callback';
 }
 
-function clientID() {
-  return trim(Config::$base_url, '/'); // remove trailing slash from client_id
+function clientID($pebble=false) {
+  if($pebble) {
+    return Config::$base_url . 'pebble';
+  } else {
+    return trim(Config::$base_url, '/'); // remove trailing slash from client_id
+  }
 }
 
 function build_url($parsed_url) { 
@@ -118,11 +122,14 @@ $app->get('/auth/start', function() use($app) {
     $_SESSION['redirect_after_login'] = '/new';
   }
 
+  $pebble = k($params, 'pebble');
+  $_SESSION['pebble'] = $pebble;
+
   if($tokenEndpoint && $micropubEndpoint && $authorizationEndpoint) {
     $scope = 'post';
-    $authorizationURL = IndieAuth\Client::buildAuthorizationURL($authorizationEndpoint, $me, buildRedirectURI(), clientID(), $state, $scope);
+    $authorizationURL = IndieAuth\Client::buildAuthorizationURL($authorizationEndpoint, $me, buildRedirectURI(), clientID($pebble), $state, $scope);
   } else {
-    $authorizationURL = IndieAuth\Client::buildAuthorizationURL('https://indieauth.com/auth', $me, buildRedirectURI(), clientID(), $state);
+    $authorizationURL = IndieAuth\Client::buildAuthorizationURL('https://indieauth.com/auth', $me, buildRedirectURI(), clientID($pebble), $state);
   }
 
   // If the user has already signed in before and has a micropub access token, skip 
@@ -223,6 +230,8 @@ $app->get('/auth/callback', function() use($app) {
     return;
   }
 
+  $pebble = k($_SESSION, 'pebble');
+
   // Now the basic sanity checks have passed. Time to start providing more helpful messages when there is an error.
   // An authorization code is in the query string, and we want to exchange that for an access token at the token endpoint.
 
@@ -235,7 +244,7 @@ $app->get('/auth/callback', function() use($app) {
 
   if($tokenEndpoint) {
     // Exchange auth code for an access token
-    $token = IndieAuth\Client::getAccessToken($tokenEndpoint, $params['code'], $params['me'], buildRedirectURI(), clientID(), $params['state'], true);
+    $token = IndieAuth\Client::getAccessToken($tokenEndpoint, $params['code'], $params['me'], buildRedirectURI(), clientID($pebble), $params['state'], true);
 
     // If a valid access token was returned, store the token info in the session and they are signed in
     if(k($token['auth'], array('me','access_token','scope'))) {
@@ -261,7 +270,7 @@ $app->get('/auth/callback', function() use($app) {
       $authorizationEndpoint = 'https://indieauth.com/auth';
     }
 
-    $token['auth'] = IndieAuth\Client::verifyIndieAuthCode($authorizationEndpoint, $params['code'], $params['me'], buildRedirectURI(), clientID(), $params['state']);
+    $token['auth'] = IndieAuth\Client::verifyIndieAuthCode($authorizationEndpoint, $params['code'], $params['me'], buildRedirectURI(), clientID($pebble), $params['state']);
 
     if(k($token['auth'], 'me')) {
       $token['response'] = ''; // hack becuase the verify call doesn't actually return the real response

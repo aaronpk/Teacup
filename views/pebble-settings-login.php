@@ -9,6 +9,7 @@
   <form action="/auth/start" method="get" class="form-inline">
     <input type="url" name="me" placeholder="http://me.com" value="" class="form-control">
     <input type="hidden" name="redirect" value="settings">
+    <input type="hidden" name="pebble" value="true">
     <input type="submit" value="Sign In" class="btn btn-primary">
   </form>  
 
