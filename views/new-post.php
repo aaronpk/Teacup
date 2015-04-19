@@ -3,40 +3,9 @@
 
       <form role="form" style="margin-top: 20px;" id="note_form" action="/post" method="post">
 
-        <h3>Caffeine</h3>
-        <ul class="caffeine entry-buttons">
-          <?php foreach(caffeine_options() as $val): ?>
-            <li><input type="submit" name="drank" class="btn btn-default" value="<?= $val ?>"></li>
-          <?php endforeach; ?>
-        </ul>
-        <br>
-
-        <h3>Alcohol</h3>
-        <ul class="alcohol entry-buttons">
-          <?php foreach(alcohol_options() as $val): ?>
-            <li><input type="submit" name="drank" class="btn btn-default" value="<?= $val ?>"></li>
-          <?php endforeach; ?>
-        </ul>
-        <br>
-
-        <h3>Drank</h3>
-        <ul class="other entry-buttons">
-          <li>
-            <input type="text" class="form-control text-custom-drank" name="custom_drank" placeholder="Custom" style="width: 72%; float: left; margin-right: 2px;">
-            <input type="submit" class="btn btn-default btn-custom-drank" value="Post" style="width: 26%; float: right;">
-          </li>
-        </ul>
-        <br><br>
-
-        <h3>Ate</h3>
-        <ul class="other entry-buttons">
-          <li>
-            <input type="text" class="form-control text-custom-ate" name="custom_ate" placeholder="Custom" style="width: 72%; float: left; margin-right: 2px;">
-            <input type="submit" class="btn btn-default btn-custom-ate" value="Post" style="width: 26%; float: right;">
-          </li>
-        </ul>
-        <br><br>
-
+        <div id="entry-buttons">
+          <?= partial('partials/entry-buttons', ['options'=>$this->default_options]) ?>
+        </div>
 
         <div class="form-group">
           <h3>Location <input type="checkbox" id="note_location_chk" value=""><img src="/images/spinner.gif" id="note_location_loading" style="display: none;"></h3>
@@ -78,6 +47,10 @@
               <td>p3k-food</td>
               <td>The button you tap (or your custom text) will be sent to your Micropub endpoint in a field named <code>p3k-food</code></td>
             </tr>
+            <tr>
+              <td>p3k-type</td>
+              <td>Will be either <code>drink</code> or <code>eat</code> depending on the type of entry</td>
+            </tr>
           </table>
         </div>
 
@@ -88,18 +61,22 @@
 <script>
 $(function(){
 
-  $(".text-custom-ate").keydown(function(e){
-    if(e.keyCode == 13) {
-      $(".btn-custom-ate").click();
-      return false;
-    }
-  });
-  $(".text-custom-drank").keydown(function(e){
-    if(e.keyCode == 13) {
-      $(".btn-custom-drank").click();
-      return false;
-    }
-  });
+  function bind_keyboard_shortcuts() {
+    $(".text-custom-eat").keydown(function(e){
+      if(e.keyCode == 13) {
+        $(".btn-custom-eat").click();
+        return false;
+      }
+    });
+    $(".text-custom-drink").keydown(function(e){
+      if(e.keyCode == 13) {
+        $(".btn-custom-drink").click();
+        return false;
+      }
+    });
+  }
+
+  bind_keyboard_shortcuts();
 
   function location_error(msg) {
     $("#note_location_msg").val(msg);
@@ -116,6 +93,14 @@ $(function(){
     $("#note_location_loading").show();
 
     navigator.geolocation.getCurrentPosition(function(position){
+
+      $.get('/new/options', {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude
+      }, function(response) {
+        $("#entry-buttons").html(response);
+        bind_keyboard_shortcuts();
+      });
 
       $("#note_location_loading").hide();
       var geo = "geo:" + (Math.round(position.coords.latitude * 100000) / 100000) + "," + (Math.round(position.coords.longitude * 100000) / 100000) + ";u=" + position.coords.accuracy;

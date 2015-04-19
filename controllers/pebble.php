@@ -32,20 +32,13 @@ $app->get('/pebble/settings/finished', function() use($app) {
 });
 
 $app->get('/pebble/options.json', function() use($app) {
-  // TODO: if a token is provided, return the user's custom list
+  if($user=require_login($app)) {
+    $params = $app->request()->params();
 
-  $app->response()['Content-Type'] = 'application/json';
-  $app->response()->body(json_encode(array(
-    'sections' => array(
-      array(
-        'title' => 'Caffeine',
-        'items' => array_map(function($e){ return array('title'=>$e, 'type'=>'drink'); }, caffeine_options())
-      ),
-      array(
-        'title' => 'Alcohol',
-        'items' => array_map(function($e){ return array('title'=>$e, 'type'=>'drink'); }, alcohol_options())
-      )
-    )
-  )));
+    $options = get_entry_options($user->id, k($params,'latitude'), k($params,'longitude'));
+
+    $app->response()['Content-Type'] = 'application/json';
+    $app->response()->body(json_encode($options));
+  }
 });
 

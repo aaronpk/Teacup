@@ -46,13 +46,19 @@ $app->get('/new', function() use($app) {
     $entry = false;
     $photo_url = false;
 
+    // Initially populate the page with the list of options without considering location.
+    // This way if browser location is disabled or not available, or JS is disabled, there
+    // will still be a list of options presented on the page by the time it loads.
+    // Javascript will replace the options after location is available.
+
     $html = render('new-post', array(
       'title' => 'New Post',
       'micropub_endpoint' => $user->micropub_endpoint,
       'token_scope' => $user->token_scope,
       'access_token' => $user->access_token,
       'response_date' => $user->last_micropub_response_date,
-      'location_enabled' => $user->location_enabled
+      'location_enabled' => $user->location_enabled,
+      'default_options' => get_entry_options($user->id)
     ));
     $app->response()->body($html);
   }
@@ -151,18 +157,23 @@ $app->post('/post', function() use($app) {
     }
 
     if(k($params, 'drank')) {
-      $entry->content = $params['drank'];
+      $entry->content = trim($params['drank']);
       $type = 'drink';
     } elseif(k($params, 'drink')) {
-      $entry->content = $params['drink'];
+      $entry->content = trim($params['drink']);
       $type = 'drink';
-    } elseif(k($params, 'custom_drank')) {
-      $entry->content = $params['custom_drank'];
+    } elseif(k($params, 'eat')) {
+      $entry->content = trim($params['eat']);
+      $type = 'eat';
+    } elseif(k($params, 'custom_drink')) {
+      $entry->content = trim($params['custom_drink']);
       $type = 'drink';
-    } elseif(k($params, 'custom_ate')) {
-      $entry->content = $params['custom_ate'];
+    } elseif(k($params, 'custom_eat')) {
+      $entry->content = trim($params['custom_eat']);
       $type = 'eat';
     }
+
+    $entry->type = $type;
 
     $entry->save();
 
@@ -206,6 +217,16 @@ $app->post('/post', function() use($app) {
   }
 });
 
+$app->get('/new/options', function() use($app) {
+  if($user=require_login($app)) {
+    $params = $app->request()->params();
+
+    $options = get_entry_options($user->id, $params['latitude'], $params['longitude']);
+    $html = partial('partials/entry-buttons', ['options'=>$options]);
+
+    $app->response()->body($html);
+  }
+});
 
 $app->get('/map.png', function() use($app) {
   $params = $app->request()->params();
