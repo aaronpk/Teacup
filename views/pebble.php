@@ -5,9 +5,11 @@
 
     <p class="tagline"><span class="p-name">Teacup for Pebble</span> is a simple app for tracking what you are drinking.</p>
 
-    <p>To use Teacup, sign in with your domain. If your website supports <a href="http://indiewebcamp.com/micropub">Micropub</a>, it will log posts directly to your site. Otherwise, it will post to your profile on teacup.p3k.io.</p>
+    <p>To use Teacup, download it to your Pebble, and sign in with your domain. If your website supports <a href="http://indiewebcamp.com/micropub">Micropub</a>, it will log posts directly to your site. Otherwise, it will post to your profile on teacup.p3k.io.</p>
 
-    <img src="/images/banner.jpg" width="100%" class="screenshot">
+    <p><span style="font-size: 16pt;"><a href="https://apps.getpebble.com/applications/5456c83433c864a87f0000b9">Download Teacup for Pebble</a></span></p>
+
+    <a href="https://apps.getpebble.com/applications/5456c83433c864a87f0000b9"><img src="/images/banner.jpg" width="100%" class="screenshot"></a>
 
   </div>
 
