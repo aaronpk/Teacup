@@ -246,6 +246,7 @@ function query_user_nearby_options($type, $user_id, $latitude, $longitude) {
   foreach($optionsQ as $o) {
     $options[] = [
       'title' => $o->content,
+      'subtitle' => query_last_eaten($user_id, $o->type, $o->content),
       'type' => $o->type
     ];
   }
@@ -256,7 +257,7 @@ function query_user_frequent_options($type, $user_id) {
   $published = date('Y-m-d H:i:s', strtotime('-4 months'));
   $options = [];
   $optionsQ = ORM::for_table('entries')->raw_query('
-    SELECT type, content
+    SELECT type, content, MAX(published) AS published
     FROM entries
     WHERE user_id = :user_id
       AND type = :type
@@ -268,10 +269,42 @@ function query_user_frequent_options($type, $user_id) {
   foreach($optionsQ as $o) {
     $options[] = [
       'title' => $o->content,
+      'subtitle' => query_last_eaten($user_id, $o->type, $o->content),
       'type' => $o->type
     ];
   }
   return $options;
+}
+
+function query_last_eaten($user_id, $type, $content) {
+  $lastQ = ORM::for_table('entries')->raw_query('
+    SELECT published, timezone
+    FROM entries
+    WHERE user_id=:user_id
+      AND type=:type
+      AND content=:content
+    ORDER BY published DESC 
+    LIMIT 1; 
+  ', ['user_id'=>$user_id, 'type'=>$type, 'content'=>$content])->find_one();
+  if(!$lastQ)
+    return '';
+
+  $timestamp = strtotime($lastQ->published);
+  // If less than 8 hours ago, use relative time, otherwise show the actual time
+  if(time() - $timestamp > 60*60*8) {
+    $date = new DateTime($lastQ->published);
+    $date->setTimeZone(new DateTimeZone($lastQ->timezone));
+    return $date->format('D, M j, g:ia');
+  } else {
+    $config = array(
+      'language' => '\RelativeTime\Languages\English',
+      'separator' => ', ',
+      'suffix' => true,
+      'truncate' => 1,
+    );
+    $relativeTime = new \RelativeTime\RelativeTime($config);
+    return $relativeTime->timeAgo($lastQ->published);
+  }
 }
 
 function get_entry_options($user_id, $latitude=null, $longitude=null) {
@@ -303,6 +336,7 @@ function get_entry_options($user_id, $latitude=null, $longitude=null) {
   foreach($recentQ as $r) {
     $recent[] = [
       'title' => $r->content,
+      'subtitle' => query_last_eaten($user_id, $r->type, $r->content),
       'type' => $r->type
     ];
   }
@@ -322,6 +356,7 @@ function get_entry_options($user_id, $latitude=null, $longitude=null) {
       if(!in_array(['title'=>$next,'type'=>'drink'], $drinks)) {
         $drinks[] = [
           'title' => $next,
+          'subtitle' => query_last_eaten($user_id, 'drink', $next),
           'type' => 'drink'
         ];
       }
@@ -341,6 +376,7 @@ function get_entry_options($user_id, $latitude=null, $longitude=null) {
       if(!in_array(['title'=>$next,'type'=>'eat'], $food)) {
         $food[] = [
           'title' => $next,
+          'subtitle' => query_last_eaten($user_id, 'eat', $next),
           'type' => 'eat'
         ];
       }

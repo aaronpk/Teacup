@@ -221,7 +221,7 @@ $app->get('/new/options', function() use($app) {
   if($user=require_login($app)) {
     $params = $app->request()->params();
 
-    $options = get_entry_options($user->id, $params['latitude'], $params['longitude']);
+    $options = get_entry_options($user->id, k($params,'latitude'), k($params,'longitude'));
     $html = partial('partials/entry-buttons', ['options'=>$options]);
 
     $app->response()->body($html);
