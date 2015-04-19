@@ -258,7 +258,9 @@ $app->get('/:domain', function($domain) use($app) {
     'newer' => ($newer ? $newer->id : false)
   ));
   $app->response()->body($html);
-});
+})->conditions(array(
+  'domain' => '[a-zA-Z0-9\.-]+\.[a-z]+'
+));
 
 
 $app->get('/:domain/:entry', function($domain, $entry_id) use($app) {

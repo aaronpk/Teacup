@@ -1,5 +1,12 @@
 <?php
 
+$app->get('/pebble', function() use($app) {
+  $html = render('pebble', array(
+    'title' => 'Teacup for Pebble'
+  ));
+  $app->response()->body($html);
+});
+
 $app->get('/pebble/settings', function() use($app) {
   $html = render('pebble-settings-login', array(
     'title' => 'Log In',
