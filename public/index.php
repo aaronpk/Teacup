@@ -13,6 +13,7 @@ $app = new \Slim\Slim(array(
 
 require 'controllers/auth.php';
 require 'controllers/controllers.php';
+require 'controllers/pebble.php';
 
 session_name('teacup');
 session_set_cookie_params(86400*30);
