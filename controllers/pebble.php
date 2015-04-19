@@ -2,7 +2,8 @@
 
 $app->get('/pebble/settings', function() use($app) {
   $html = render('pebble-settings-login', array(
-    'title' => 'Log In'
+    'title' => 'Log In',
+    'footer' => false
   ));
   $app->response()->body($html);
 });
