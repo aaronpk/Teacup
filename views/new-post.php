@@ -98,7 +98,28 @@ $(function(){
         latitude: position.coords.latitude,
         longitude: position.coords.longitude
       }, function(response) {
+        // save and restore the value entered in the custom fields 
+        var custom_eat = $('#custom_eat').val();
+        var custom_drink = $('#custom_drink').val();
+
+        var selected = false;
+        if($("#custom_drink:focus").length == 1) {
+          selected = '#custom_drink';
+        }
+        if($("#custom_eat:focus").length == 1) {
+          selected = '#custom_eat';
+        }
+
         $("#entry-buttons").html(response);
+
+        // restore the custom values entered
+        $('#custom_eat').val(custom_eat);
+        $('#custom_drink').val(custom_drink);
+
+        if(selected) {
+          $(selected).focus();
+        }
+
         bind_keyboard_shortcuts();
       });
 

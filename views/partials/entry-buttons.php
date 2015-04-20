@@ -18,7 +18,7 @@
         }
         if($type == 'drink' || $type == 'eat') {
           echo '<li>';
-            echo '<input type="text" class="form-control text-custom-'.$type.'" name="custom_'.$type.'" placeholder="Custom '.$noun.'" style="width: 72%; float: left; margin-right: 2px;">';
+            echo '<input type="text" class="form-control text-custom-'.$type.'" id="custom_'.$type.'" name="custom_'.$type.'" placeholder="Custom '.$noun.'" style="width: 72%; float: left; margin-right: 2px;">';
             echo '<input type="submit" class="btn btn-default btn-custom-'.$type.'" value="Post" style="width: 26%; float: right;">';
             echo '<div style="clear:both;"></div>';
           echo '</li>';
