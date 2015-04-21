@@ -9,7 +9,7 @@
 
     <p><span style="font-size: 16pt;"><a href="https://apps.getpebble.com/applications/5456c83433c864a87f0000b9">Download Teacup for Pebble</a></span></p>
 
-    <a href="https://apps.getpebble.com/applications/5456c83433c864a87f0000b9"><img src="/images/banner.jpg" width="100%" class="screenshot"></a>
+    <a href="https://apps.getpebble.com/applications/5456c83433c864a87f0000b9"><img src="/images/screenshots.jpg" width="100%" class="screenshot"></a>
 
   </div>
 
