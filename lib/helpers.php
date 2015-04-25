@@ -88,7 +88,7 @@ function micropub_post($endpoint, $params, $access_token) {
     'Authorization: Bearer ' . $access_token
   ));
   curl_setopt($ch, CURLOPT_POST, true);
-  $post = http_build_query(array_merge(array(,
+  $post = http_build_query(array_merge(array(
     'access_token' => $access_token,
     'h' => 'entry'
   ), $params));
