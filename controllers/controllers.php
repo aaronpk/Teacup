@@ -159,18 +159,23 @@ $app->post('/post', function() use($app) {
     if(k($params, 'drank')) {
       $entry->content = trim($params['drank']);
       $type = 'drink';
+      $verb = 'drank';
     } elseif(k($params, 'drink')) {
       $entry->content = trim($params['drink']);
       $type = 'drink';
+      $verb = 'drank';
     } elseif(k($params, 'eat')) {
       $entry->content = trim($params['eat']);
       $type = 'eat';
+      $verb = 'ate';
     } elseif(k($params, 'custom_drink')) {
       $entry->content = trim($params['custom_drink']);
       $type = 'drink';
+      $verb = 'drank';
     } elseif(k($params, 'custom_eat')) {
       $entry->content = trim($params['custom_eat']);
       $type = 'eat';
+      $verb = 'ate';
     }
 
     $entry->type = $type;
@@ -181,11 +186,14 @@ $app->post('/post', function() use($app) {
     $url = false;
 
     if($user->micropub_endpoint) {
+      $text_content = 'Just ' . $verb . ': ' . $entry->content;
+
       $mp_request = array(
         'h' => 'entry',
         'p3k-food' => $entry->content,
         'p3k-type' => $type,
-        'location' => k($params, 'location')
+        'location' => k($params, 'location'),
+        'summary' => $text_content
       );
 
       $r = micropub_post($user->micropub_endpoint, $mp_request, $user->access_token);
