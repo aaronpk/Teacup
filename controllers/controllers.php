@@ -264,18 +264,26 @@ $app->get('/:domain', function($domain) use($app) {
   }
   $entries = $entries->limit($per_page)->order_by_desc('published')->find_many();
 
-  $older = ORM::for_table('entries')->where('user_id', $user->id)
-    ->where_lt('id', $entries[count($entries)-1]->id)->order_by_desc('published')->find_one();
+  if(count($entries) > 1) {
+    $older = ORM::for_table('entries')->where('user_id', $user->id)
+      ->where_lt('id', $entries[count($entries)-1]->id)->order_by_desc('published')->find_one();
+  } else {
+    $older = null;
+  }
 
-  $newer = ORM::for_table('entries')->where('user_id', $user->id)
-    ->where_gte('id', $entries[0]->id)->order_by_asc('published')->offset($per_page)->find_one();
+  if(count($entries) > 1) {
+    $newer = ORM::for_table('entries')->where('user_id', $user->id)
+      ->where_gte('id', $entries[0]->id)->order_by_asc('published')->offset($per_page)->find_one();
+  } else {
+    $newer = null;
+  }
 
   if(!$newer) {
     // no new entry was found at the specific offset, so find the newest post to link to instead
     $newer = ORM::for_table('entries')->where('user_id', $user->id)
       ->order_by_desc('published')->limit(1)->find_one();
 
-    if($newer->id == $entries[0]->id)
+    if($newer && $newer->id == $entries[0]->id)
       $newer = false;
   }
 

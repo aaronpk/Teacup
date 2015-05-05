@@ -8,6 +8,10 @@
     <?php endforeach; ?>
   </ul>
 
+  <?php if(count($this->entries) == 0): ?>
+    <div class="bs-callout bs-callout-warning">There are no entries yet!</div>
+  <?php endif; ?>
+
   <nav class="site-navigation">
     <? if($this->older) { ?>
       <a class="prev" href="/<?= $this->user->url ?>?before=<?= $this->older ?>" rel="prev"><abbr>&larr;</abbr> <span>Older</span></a>
