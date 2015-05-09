@@ -43,8 +43,26 @@ function generate_login_token() {
 $app->get('/new', function() use($app) {
   if($user=require_login($app)) {
 
-    $entry = false;
-    $photo_url = false;
+    // Get the last post and set the timezone offset to match
+    $date_str = date('Y-m-d');
+    $time_str = date('H:i:s');
+    $tz_offset = '+0000';
+
+    $last = ORM::for_table('entries')->where('user_id', $user->id)
+      ->order_by_desc('published')->find_one();
+    if(false && $last) {
+      $seconds = $last->tz_offset;
+      $tz_offset = tz_seconds_to_offset($seconds);
+
+      // Create a date object in the local timezone given the offset
+      $date = new DateTime();
+      if($seconds > 0)
+        $date->add(new DateInterval('PT'.$seconds.'S'));
+      elseif($seconds < 0)
+        $date->sub(new DateInterval('PT'.abs($seconds).'S'));
+      $date_str = $date->format('Y-m-d');
+      $time_str = $date->format('H:i:s');
+    }
 
     // Initially populate the page with the list of options without considering location.
     // This way if browser location is disabled or not available, or JS is disabled, there
@@ -59,6 +77,9 @@ $app->get('/new', function() use($app) {
       'response_date' => $user->last_micropub_response_date,
       'location_enabled' => $user->location_enabled,
       'default_options' => get_entry_options($user->id),
+      'tz_offset' => $tz_offset,
+      'date_str' => $date_str,
+      'time_str' => $time_str,
       'enable_appcache' => true
     ));
     $app->response()->body($html);
@@ -145,19 +166,19 @@ $app->post('/post', function() use($app) {
     // Store the post in the database
     $entry = ORM::for_table('entries')->create();
     $entry->user_id = $user->id;
-    $entry->published = date('Y-m-d H:i:s');
 
+    $location = false;
     if(k($params, 'location') && $location=parse_geo_uri($params['location'])) {
       $entry->latitude = $location['latitude'];
       $entry->longitude = $location['longitude'];
-      if($timezone=get_timezone($location['latitude'], $location['longitude'])) {
-        $entry->timezone = $timezone->getName();
-        $entry->tz_offset = $timezone->getOffset(new DateTime());
-      }
-    } else {
-      $entry->timezone = 'UTC';
-      $entry->tz_offset = 0;
     }
+
+    // The post request is always going to have a date now
+    $date_string = $params['note_date'] . 'T' . $params['note_time'] . $params['note_tzoffset'];
+    $entry->published = date('Y-m-d H:i:s', strtotime($date_string));
+    $entry->tz_offset = tz_offset_to_seconds($params['note_tzoffset']);
+
+    $published = $date_string;
 
     if(k($params, 'drank')) {
       $entry->content = trim($params['drank']);
@@ -193,6 +214,7 @@ $app->post('/post', function() use($app) {
 
       $mp_request = array(
         'h' => 'entry',
+        'published' => $published,
         'p3k-food' => $entry->content,
         'p3k-type' => $type,
         'location' => k($params, 'location'),
@@ -228,14 +250,39 @@ $app->post('/post', function() use($app) {
   }
 });
 
-$app->get('/options', function() use($app) {
+$app->get('/options.json', function() use($app) {
   if($user=require_login($app)) {
     $params = $app->request()->params();
 
     $options = get_entry_options($user->id, k($params,'latitude'), k($params,'longitude'));
     $html = partial('partials/entry-buttons', ['options'=>$options]);
 
-    $app->response()->body($html);
+    $tz_offset = '+0000';
+    $date_str = date('Y-m-d');
+    $time_str = date('H:i:s');
+    if(k($params,'latitude')) {
+      if($timezone=get_timezone($params['latitude'], $params['longitude'])) {
+        $seconds = $timezone->getOffset(new DateTime());
+        $tz_offset = tz_seconds_to_offset($seconds);
+
+        // Create a date object in the local timezone given the offset
+        $date = new DateTime();
+        if($seconds > 0)
+          $date->add(new DateInterval('PT'.$seconds.'S'));
+        elseif($seconds < 0)
+          $date->sub(new DateInterval('PT'.abs($seconds).'S'));
+        $date_str = $date->format('Y-m-d');
+        $time_str = $date->format('H:i:s');
+      }
+    }
+
+    $app->response()['Content-type'] = 'application/json';
+    $app->response()->body(json_encode([
+      'buttons'=>$html, 
+      'tz_offset'=>$tz_offset,
+      'date_str'=>$date_str,
+      'time_str'=>$time_str
+    ]));
   }
 });
 
@@ -251,7 +298,7 @@ $app->get('/map.png', function() use($app) {
   $app->response()->body($img);
 });
 
-$app->get('/teacup.appcache', function() use($app) {
+$app->get('/-teacup.appcache', function() use($app) {
   $content = partial('appcache');
 
   $app->response()['Content-type'] = 'text/cache-manifest';

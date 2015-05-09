@@ -23,8 +23,9 @@
         <div class="form-group">
           <h3>Date</h3>
           
-          <input type="date" value="<?= date('Y-m-d') ?>" id="note_date">
-          <input type="time" value="<?= date('H:i') ?>" id="note_time">
+          <input type="date" id="note_date" name="note_date" value="<?= $this->date_str ?>">
+          <input type="text" id="note_time" name="note_time" value="<?= $this->time_str ?>">
+          <input type="text" id="note_tzoffset" name="note_tzoffset" value="<?= $this->tz_offset ?>">
         </div>
       </form>
 
@@ -101,7 +102,7 @@ $(function(){
 
     navigator.geolocation.getCurrentPosition(function(position){
 
-      $.get('/options', {
+      $.getJSON('/options.json', {
         latitude: position.coords.latitude,
         longitude: position.coords.longitude
       }, function(response) {
@@ -117,7 +118,10 @@ $(function(){
           selected = '#custom_eat';
         }
 
-        $("#entry-buttons").html(response);
+        $("#entry-buttons").html(response.buttons);
+        $("#note_tzoffset").val(response.tz_offset);
+        $("#note_date").val(response.date_str);
+        $("#note_time").val(response.time_str);
 
         // restore the custom values entered
         $('#custom_eat').val(custom_eat);

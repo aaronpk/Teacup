@@ -192,15 +192,45 @@ function relative_time($date) {
   return $rel->timeAgo($date);
 }
 
+function date_iso8601($date_string, $tz_offset) {
+  $date = new DateTime($date_string);
+  if($tz_offset > 0)
+    $date->add(new DateInterval('PT'.$tz_offset.'S'));
+  elseif($tz_offset < 0)
+    $date->sub(new DateInterval('PT'.abs($tz_offset).'S'));
+  $tz = tz_seconds_to_offset($tz_offset);
+  return $date->format('Y-m-d\TH:i:s') . $tz;
+}
+
+function tz_seconds_to_offset($seconds) {
+  return ($seconds < 0 ? '-' : '+') . sprintf('%02d:%02d', abs($seconds/60/60), ($seconds/60)%60);
+}
+
+function tz_offset_to_seconds($offset) {
+  if(preg_match('/([+-])(\d{2}):?(\d{2})/', $offset, $match)) {
+    $sign = ($match[1] == '-' ? -1 : 1);
+    return ($match[2] * 60 * 60) + ($match[3] * 60) * $sign;
+  } else {
+    return 0;
+  }
+}
+
 function entry_url($entry, $user) {
   return $entry->canonical_url ?: Config::$base_url . $user->url . '/' . $entry->id;
 }
 
 function entry_date($entry, $user) {
   $date = new DateTime($entry->published);
-  $tz = new DateTimeZone($entry->timezone);
-  $date->setTimeZone($tz);
-  return $date;
+  if($entry->tz_offset > 0)
+    $date->add(new DateInterval('PT'.$entry->tz_offset.'S'));
+  elseif($entry->tz_offset < 0)
+    $date->sub(new DateInterval('PT'.abs($entry->tz_offset).'S'));
+  $tz = tz_seconds_to_offset($entry->tz_offset);
+  return new DateTime($date->format('Y-m-d\TH:i:s') . $tz);
+  // Can switch back to this later if I prompt the user for a named timezone instead of just an offset
+  // $tz = new DateTimeZone($entry->timezone);
+  // $date->setTimeZone($tz);
+  // return $date;
 }
 
 function default_drink_options() {

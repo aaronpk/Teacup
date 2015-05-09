@@ -23,7 +23,7 @@
   <?php endif; ?>
 
   <div class="date">
-    <a href="<?= entry_url($this->entry, $this->user) ?>" class="u-url"><time class="dt-published" datetime="<?= entry_date($this->entry, $this->user)->format('c') ?>"><?= entry_date($this->entry, $this->user)->format('F j, Y g:ia T') ?></time></a>
+    <a href="<?= entry_url($this->entry, $this->user) ?>" class="u-url"><time class="dt-published" datetime="<?= entry_date($this->entry, $this->user)->format('c') ?>"><?= entry_date($this->entry, $this->user)->format('F j, Y g:ia P') ?></time></a>
   </div>
 </li>
 
