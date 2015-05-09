@@ -7,7 +7,7 @@
     <link rel="pingback" href="https://webmention.io/aaronpk/xmlrpc" />
     <link rel="webmention" href="https://webmention.io/aaronpk/webmention" />
 
-    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <!-- <meta name="apple-mobile-web-app-capable" content="yes" /> -->
     <!-- standard viewport tag to set the viewport to the device's width
       , Android 2.3 devices need this so 100% width works properly and
       doesn't allow children to blow up the viewport width-->
