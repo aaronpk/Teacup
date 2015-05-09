@@ -1,7 +1,7 @@
 <li class="h-entry">
 
   <?php if($this->entry->latitude): ?>
-    <img src="/map.png?latitude=<?= $this->entry->latitude ?>&amp;longitude=<?= $this->entry->longitude ?>" class="map-img">
+    <img src="<?= build_static_map_url($this->entry->latitude, $this->entry->longitude, 174,300,14) ?>" class="map-img">
   <?php endif; ?>
 
   <div class="author h-card p-author">

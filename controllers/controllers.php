@@ -239,11 +239,13 @@ $app->get('/options', function() use($app) {
 });
 
 $app->get('/map.png', function() use($app) {
-  $params = $app->request()->params();
-  $url = get_static_map($_SERVER['QUERY_STRING']);
+  $url = static_map_service($_SERVER['QUERY_STRING']);
   $ch = curl_init($url);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
   $img = curl_exec($ch);
+  header('Expires: ' . gmdate('D, d M Y H:i:s', strtotime('+30 days')) . ' GMT');
+  header('Pragma: cache');
+  header('Cache-Control: private');
   $app->response()['Content-type'] = 'image/png';
   $app->response()->body($img);
 });

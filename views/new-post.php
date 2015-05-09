@@ -86,8 +86,8 @@ $(function(){
     $("#note_location_msg").removeClass("img-visible");
   }
 
-  var map_template_wide = "<?= static_map('{lat}', '{lng}', 180, 700, 15) ?>";
-  var map_template_small = "<?= static_map('{lat}', '{lng}', 320, 480, 15) ?>";
+  var map_template_wide = "<?= build_static_map_url('{lat}', '{lng}', 180, 700, 15) ?>";
+  var map_template_small = "<?= build_static_map_url('{lat}', '{lng}', 320, 480, 15) ?>";
 
   function fetch_location() {
     $("#note_location_loading").show();
