@@ -90,6 +90,7 @@ $app->get('/docs', function() use($app) {
 
 $app->get('/add-to-home', function() use($app) {
   $params = $app->request()->params();
+  header("Cache-Control: no-cache, must-revalidate");
 
   if(array_key_exists('token', $params) && !session('add-to-home-started')) {
     unset($_SESSION['add-to-home-started']);
