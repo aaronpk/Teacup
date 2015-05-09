@@ -238,7 +238,7 @@ $app->get('/new/options', function() use($app) {
 
 $app->get('/map.png', function() use($app) {
   $params = $app->request()->params();
-  $url = static_map($params['latitude'], $params['longitude']);
+  $url = get_static_map($_SERVER['QUERY_STRING']);
   $ch = curl_init($url);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
   $img = curl_exec($ch);
@@ -246,6 +246,12 @@ $app->get('/map.png', function() use($app) {
   $app->response()->body($img);
 });
 
+$app->get('/teacup.appcache', function() use($app) {
+  $content = partial('appcache');
+
+  $app->response()['Content-type'] = 'text/cache-manifest';
+  $app->response()->body($content);
+});
 
 $app->get('/:domain', function($domain) use($app) {
   $params = $app->request()->params();
@@ -323,7 +329,5 @@ $app->get('/:domain/:entry', function($domain, $entry_id) use($app) {
   'domain' => '[a-zA-Z0-9\.-]+\.[a-z]+',
   'entry' => '\d+'
 ));
-
-
 
 

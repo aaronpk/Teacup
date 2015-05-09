@@ -171,7 +171,12 @@ function get_syndication_targets(&$user) {
 }
 
 function static_map($latitude, $longitude, $height=174, $width=300, $zoom=14) {
-  return 'http://static-maps.pdx.esri.com/img.php?marker[]=lat:' . $latitude . ';lng:' . $longitude . ';icon:small-green-cutout&basemap=topo&width=' . $width . '&height=' . $height . '&zoom=' . $zoom;
+  #return 'http://static-maps.pdx.esri.com/img.php?marker[]=lat:' . $latitude . ';lng:' . $longitude . ';icon:small-green-cutout&basemap=topo&width=' . $width . '&height=' . $height . '&zoom=' . $zoom;
+  return '/map.png?marker[]=lat:' . $latitude . ';lng:' . $longitude . ';icon:small-green-cutout&basemap=topo&width=' . $width . '&height=' . $height . '&zoom=' . $zoom;
+}
+
+function get_static_map($query) {
+  return 'http://static-maps.pdx.esri.com/img.php?' . $query;
 }
 
 function relative_time($date) {

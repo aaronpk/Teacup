@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" manifest="teacup.appcache">
   <head>
     <title><?= $this->title ?></title>
     <meta charset="utf-8">
