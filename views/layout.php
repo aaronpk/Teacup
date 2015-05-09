@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" manifest="teacup.appcache">
+<html lang="en"<?= property_exists($this, 'enable_appcache') ? ' manifest="teacup.appcache"' : '' ?>>
   <head>
     <title><?= $this->title ?></title>
     <meta charset="utf-8">

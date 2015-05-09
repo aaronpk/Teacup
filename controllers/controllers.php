@@ -58,7 +58,8 @@ $app->get('/new', function() use($app) {
       'access_token' => $user->access_token,
       'response_date' => $user->last_micropub_response_date,
       'location_enabled' => $user->location_enabled,
-      'default_options' => get_entry_options($user->id)
+      'default_options' => get_entry_options($user->id),
+      'enable_appcache' => true
     ));
     $app->response()->body($html);
   }
