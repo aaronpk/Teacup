@@ -230,21 +230,22 @@ function default_food_options() {
 function query_user_nearby_options($type, $user_id, $latitude, $longitude) {
   $published = date('Y-m-d H:i:s', strtotime('-4 months'));
   $options = [];
+  $bin_size = 1000;
   $optionsQ = ORM::for_table('entries')->raw_query('
     SELECT *, SUM(num) AS num FROM
     (
     SELECT id, published, content, type,
-      round(gc_distance(latitude, longitude, :latitude, :longitude) / 1000) AS dist, 
+      round(gc_distance(latitude, longitude, :latitude, :longitude) / '.$bin_size.') AS dist, 
       COUNT(1) AS num
     FROM entries
     WHERE user_id = :user_id
       AND type = :type
       AND gc_distance(latitude, longitude, :latitude, :longitude) IS NOT NULL
       AND published > :published /* only look at the last 4 months of posts */
-    GROUP BY content, round(gc_distance(latitude, longitude, :latitude, :longitude) / 1000) /* group by 1km buckets */
-    ORDER BY round(gc_distance(latitude, longitude, :latitude, :longitude) / 1000), COUNT(1) DESC /* order by distance and frequency */
+    GROUP BY content, round(gc_distance(latitude, longitude, :latitude, :longitude) / '.$bin_size.') /* group by 1km buckets */
+    ORDER BY round(gc_distance(latitude, longitude, :latitude, :longitude) / '.$bin_size.'), COUNT(1) DESC /* order by distance and frequency */
     ) AS tmp
-    WHERE num > 2 /* only include things that have been used more than 2 times in this 1km bucket */
+    WHERE num > 2 /* only include things that have been used more than 2 times in this bucket */
     GROUP BY content /* group by name again */
     ORDER BY SUM(num) DESC /* order by overall frequency */ 
     LIMIT 4   
