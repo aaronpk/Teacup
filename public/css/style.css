@@ -194,7 +194,7 @@ body {
   margin-bottom: 10px;
   list-style-type: none;
   padding-left: 0;
-  max-width: 240px;
+  max-width: 100%;
 }
 .entry-buttons li {
   margin-bottom: 6px;

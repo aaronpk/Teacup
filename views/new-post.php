@@ -22,38 +22,38 @@
       </form>
 
       <?php if($this->micropub_endpoint): ?>
-
+      <div class="scroll-container">
         <div class="callout">
           <p>Clicking an item will post this note to your Micropub endpoint. Below is some information about the request that will be made.</p>
 
           <table class="table table-condensed">
             <tr>
               <td>me</td>
-              <td><code><?= session('me') ?></code> (should be your URL)</td>
+              <td class="break"><code><?= session('me') ?></code> (should be your URL)</td>
             </tr>
             <tr>
               <td>scope</td>
-              <td><code><?= $this->token_scope ?></code> (should be a space-separated list of permissions including "post")</td>
+              <td class="break"><code><?= $this->token_scope ?></code> (should be a space-separated list of permissions including "post")</td>
             </tr>
             <tr>
               <td>micropub endpoint</td>
-              <td><code><?= $this->micropub_endpoint ?></code> (should be a URL)</td>
+              <td class="break"><code><?= $this->micropub_endpoint ?></code> (should be a URL)</td>
             </tr>
             <tr>
               <td>access token</td>
-              <td>String of length <b><?= strlen($this->access_token) ?></b><?= (strlen($this->access_token) > 0) ? (', ending in <code>' . substr($this->access_token, -7) . '</code>') : '' ?> (should be greater than length 0)</td>
+              <td class="break">String of length <b><?= strlen($this->access_token) ?></b><?= (strlen($this->access_token) > 0) ? (', ending in <code>' . substr($this->access_token, -7) . '</code>') : '' ?> (should be greater than length 0)</td>
             </tr>
             <tr>
               <td>p3k-food</td>
-              <td>The button you tap (or your custom text) will be sent to your Micropub endpoint in a field named <code>p3k-food</code></td>
+              <td class="break">The button you tap (or your custom text) will be sent to your Micropub endpoint in a field named <code>p3k-food</code></td>
             </tr>
             <tr>
               <td>p3k-type</td>
-              <td>Will be either <code>drink</code> or <code>eat</code> depending on the type of entry</td>
+              <td class="break">Will be either <code>drink</code> or <code>eat</code> depending on the type of entry</td>
             </tr>
           </table>
         </div>
-
+      </div>
       <?php endif; ?>
 
   </div>
@@ -173,5 +173,12 @@ $(function(){
 });
 
 </script>
-
-
+<style type="text/css">
+.scroll-container {
+  width: 100%;
+  overflow-x: scroll;
+}
+.scroll-container .break {
+  word-break: break-all;
+}
+</style>
