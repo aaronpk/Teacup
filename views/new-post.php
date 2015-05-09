@@ -94,7 +94,7 @@ $(function(){
 
     navigator.geolocation.getCurrentPosition(function(position){
 
-      $.get('/new/options', {
+      $.get('/options', {
         latitude: position.coords.latitude,
         longitude: position.coords.longitude
       }, function(response) {

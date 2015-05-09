@@ -225,7 +225,7 @@ $app->post('/post', function() use($app) {
   }
 });
 
-$app->get('/new/options', function() use($app) {
+$app->get('/options', function() use($app) {
   if($user=require_login($app)) {
     $params = $app->request()->params();
 
