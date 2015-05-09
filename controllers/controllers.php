@@ -173,12 +173,25 @@ $app->post('/post', function() use($app) {
       $entry->longitude = $location['longitude'];
     }
 
-    // The post request is always going to have a date now
-    $date_string = $params['note_date'] . 'T' . $params['note_time'] . $params['note_tzoffset'];
-    $entry->published = date('Y-m-d H:i:s', strtotime($date_string));
-    $entry->tz_offset = tz_offset_to_seconds($params['note_tzoffset']);
+    if(k($params,'note_date')) {
+      // The post request is always going to have a date now
+      $date_string = $params['note_date'] . 'T' . $params['note_time'] . $params['note_tzoffset'];
+      $entry->published = date('Y-m-d H:i:s', strtotime($date_string));
+      $entry->tz_offset = tz_offset_to_seconds($params['note_tzoffset']);
+      $published = $date_string;
+    } else {
+      // Pebble doesn't send the date
+      $entry->published = date('Y-m-d H:i:s');
+      $published = date('c'); // for the micropub post
+      if($location && ($timezone=get_timezone($location['latitude'], $location['longitude']))) {
+        $entry->timezone = $timezone->getName();
+        $entry->tz_offset = $timezone->getOffset(new DateTime());
+        $now = new DateTime();
+        $now->setTimeZone(new DateTimeZone($entry->timezone));
+        $published = $now->format('c');
+      }      
+    }
 
-    $published = $date_string;
 
     if(k($params, 'drank')) {
       $entry->content = trim($params['drank']);
