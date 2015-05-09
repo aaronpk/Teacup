@@ -311,7 +311,7 @@ $app->get('/map.png', function() use($app) {
   $app->response()->body($img);
 });
 
-$app->get('/-teacup.appcache', function() use($app) {
+$app->get('/teacup.appcache', function() use($app) {
   $content = partial('appcache');
 
   $app->response()['Content-type'] = 'text/cache-manifest';
