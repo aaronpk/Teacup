@@ -92,6 +92,7 @@ $app->get('/add-to-home', function() use($app) {
   $params = $app->request()->params();
 
   if(array_key_exists('token', $params) && !session('add-to-home-started')) {
+    unset($_SESSION['add-to-home-started']);
 
     // Verify the token and sign the user in
     try {
