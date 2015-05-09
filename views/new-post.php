@@ -19,6 +19,13 @@
             <img src="" height="320" id="note_location_img_small" class="img-responsive">
           </div>
         </div>
+        
+        <div class="form-group">
+          <h3>Date</h3>
+          
+          <input type="date" value="<?= date('Y-m-d') ?>" id="note_date">
+          <input type="time" value="<?= date('H:i') ?>" id="note_time">
+        </div>
       </form>
 
       <?php if($this->micropub_endpoint): ?>
