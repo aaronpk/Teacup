@@ -311,7 +311,15 @@ ul.entries li {
 ul.entries .map-img {
   position: absolute;
   right: 0;
+  bottom: 0;
 }
+
+@media all and (max-width: 520px) {
+  ul.entries .map-img {
+    width: 160px;
+  }
+}
+
 
 ul.entries .author {
   background-color: #e3f0d0;
