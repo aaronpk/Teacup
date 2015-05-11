@@ -270,31 +270,9 @@ $app->get('/options.json', function() use($app) {
     $options = get_entry_options($user->id, k($params,'latitude'), k($params,'longitude'));
     $html = partial('partials/entry-buttons', ['options'=>$options]);
 
-    $tz_offset = '+0000';
-    $date_str = date('Y-m-d');
-    $time_str = date('H:i:s');
-    if(k($params,'latitude')) {
-      if($timezone=get_timezone($params['latitude'], $params['longitude'])) {
-        $seconds = $timezone->getOffset(new DateTime());
-        $tz_offset = tz_seconds_to_offset($seconds);
-
-        // Create a date object in the local timezone given the offset
-        $date = new DateTime();
-        if($seconds > 0)
-          $date->add(new DateInterval('PT'.$seconds.'S'));
-        elseif($seconds < 0)
-          $date->sub(new DateInterval('PT'.abs($seconds).'S'));
-        $date_str = $date->format('Y-m-d');
-        $time_str = $date->format('H:i:s');
-      }
-    }
-
     $app->response()['Content-type'] = 'application/json';
     $app->response()->body(json_encode([
-      'buttons'=>$html, 
-      'tz_offset'=>$tz_offset,
-      'date_str'=>$date_str,
-      'time_str'=>$time_str
+      'buttons'=>$html
     ]));
   }
 });

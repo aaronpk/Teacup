@@ -3,6 +3,14 @@
 
       <form role="form" style="margin-top: 20px;" id="note_form" action="/post" method="post">
 
+        <div class="form-group">
+          <h3>Date</h3>
+          
+          <input type="date" class="form-control" style="max-width:160px; float:left; margin-right: 4px;" id="note_date" name="note_date" value="">
+          <input type="text" class="form-control" style="max-width:90px; float:left; margin-right: 4px;" id="note_time" name="note_time" value="">
+          <input type="text" class="form-control" style="max-width:90px;" id="note_tzoffset" name="note_tzoffset" value="">
+        </div>
+
         <div id="entry-buttons">
           <?= partial('partials/entry-buttons', ['options'=>$this->default_options]) ?>
         </div>
@@ -20,13 +28,6 @@
           </div>
         </div>
         
-        <div class="form-group">
-          <h3>Date</h3>
-          
-          <input type="date" id="note_date" name="note_date" value="<?= $this->date_str ?>">
-          <input type="text" id="note_time" name="note_time" value="<?= $this->time_str ?>">
-          <input type="text" id="note_tzoffset" name="note_tzoffset" value="<?= $this->tz_offset ?>">
-        </div>
       </form>
 
       <?php if($this->micropub_endpoint): ?>
@@ -68,6 +69,26 @@
 
 <script>
 $(function(){
+
+  function tz_seconds_to_offset(seconds) {
+    var tz_offset = '';
+    var hours = zero_pad(Math.abs(seconds / 60 / 60));
+    var minutes = zero_pad(Math.floor(seconds / 60) % 60);
+    return (seconds < 0 ? '-' : '+') + hours + ":" + minutes;
+  }
+  function zero_pad(num) {
+    num = "" + num;
+    if(num.length == 1) {
+      num = "0" + num;
+    }
+    return num;
+  }
+
+  // Set the date from JS
+  var d = new Date();
+  $("#note_date").val(d.getFullYear()+"-"+zero_pad(d.getMonth()+1)+"-"+zero_pad(d.getDate()));
+  $("#note_time").val(zero_pad(d.getHours())+":"+zero_pad(d.getMinutes())+":"+zero_pad(d.getSeconds()));
+  $("#note_tzoffset").val(tz_seconds_to_offset(d.getTimezoneOffset() * 60 * -1));
 
   function bind_keyboard_shortcuts() {
     $(".text-custom-eat").keydown(function(e){
@@ -119,9 +140,6 @@ $(function(){
         }
 
         $("#entry-buttons").html(response.buttons);
-        $("#note_tzoffset").val(response.tz_offset);
-        $("#note_date").val(response.date_str);
-        $("#note_time").val(response.time_str);
 
         // restore the custom values entered
         $('#custom_eat').val(custom_eat);
