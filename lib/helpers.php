@@ -235,24 +235,24 @@ function entry_date($entry, $user) {
 
 function default_drink_options() {
   return [
-    'Coffee',
-    'Beer',
-    'Cocktail',
-    'Tea',
-    'Mimosa',
-    'Latte',
-    'Champagne'
+    ['title'=>'Coffee','subtitle'=>'','type'=>'drink'],
+    ['title'=>'Beer','subtitle'=>'','type'=>'drink'],
+    ['title'=>'Cocktail','subtitle'=>'','type'=>'drink'],
+    ['title'=>'Tea','subtitle'=>'','type'=>'drink'],
+    ['title'=>'Mimosa','subtitle'=>'','type'=>'drink'],
+    ['title'=>'Latte','subtitle'=>'','type'=>'drink'],
+    ['title'=>'Champagne','subtitle'=>'','type'=>'drink']
   ];
 }
 
 function default_food_options() {
   return [
-    'Burrito',
-    'Banana',
-    'Pizza',
-    'Soup',
-    'Tacos',
-    'Mac and Cheese'
+    ['title'=>'Burrito','subtitle'=>'','type'=>'eat'],
+    ['title'=>'Banana','subtitle'=>'','type'=>'eat'],
+    ['title'=>'Pizza','subtitle'=>'','type'=>'eat'],
+    ['title'=>'Soup','subtitle'=>'','type'=>'eat'],
+    ['title'=>'Tacos','subtitle'=>'','type'=>'eat'],
+    ['title'=>'Mac and Cheese','subtitle'=>'','type'=>'eat']
   ];
 }
 
@@ -274,7 +274,8 @@ function query_user_nearby_options($type, $user_id, $latitude, $longitude) {
     GROUP BY content, round(gc_distance(latitude, longitude, :latitude, :longitude) / '.$bin_size.') /* group by 1km buckets */
     ORDER BY round(gc_distance(latitude, longitude, :latitude, :longitude) / '.$bin_size.'), COUNT(1) DESC /* order by distance and frequency */
     ) AS tmp
-    WHERE num > 2 /* only include things that have been used more than 2 times in this bucket */
+    WHERE num >= 1 /* only include things that have been used more than 2 times in this bucket */
+      AND dist < 1000
     GROUP BY content /* group by name again */
     ORDER BY SUM(num) DESC /* order by overall frequency */ 
     LIMIT 6
@@ -394,48 +395,35 @@ function get_entry_options($user_id, $latitude=null, $longitude=null) {
     $longitude = $last_longitude;
   }
 
+  $num_options = 6;
+
   if($latitude) {
     $drinks = query_user_nearby_options('drink', $user_id, $latitude, $longitude);
   }
   // If there's no nearby data (like if the user isn't including location) then return the most frequently used ones instead
-  if(count($drinks) == 0) {
-    $drinks = query_user_frequent_options('drink', $user_id);
+  if(count($drinks) < $num_options) {
+    $frequent_drinks = query_user_frequent_options('drink', $user_id);
+    $drinks = array_merge($drinks, $frequent_drinks);
   }
   // If there's less than 4 options available, fill the list with the default options
-  $num_options = 6;
-  if(count($drinks) < 6) {
-    $default = default_drink_options();
-    while(count($drinks) < 6) {
-      $next = array_shift($default);
-      if(!in_array(['title'=>$next,'type'=>'drink'], $drinks)) {
-        $drinks[] = [
-          'title' => $next,
-          'subtitle' => query_last_eaten($user_id, 'drink', $next),
-          'type' => 'drink'
-        ];
-      }
-    }
+  if(count($drinks) < $num_options) {
+    $default_drinks = default_drink_options();
+    $drinks = array_merge($drinks, $default_drinks);
   }
+  $drinks = array_slice($drinks, 0, $num_options);
 
   if($latitude) {
     $food = query_user_nearby_options('eat', $user_id, $latitude, $longitude);
   }
   if(count($food) == 0) {
-    $food = query_user_frequent_options('eat', $user_id);
+    $frequent_food = query_user_frequent_options('eat', $user_id);
+    $food = array_merge($food, $frequent_food);
   }
   if(count($food) < $num_options) {
-    $default = default_food_options();
-    while(count($food) < $num_options) {
-      $next = array_shift($default);
-      if(!in_array(['title'=>$next,'type'=>'eat'], $food)) {
-        $food[] = [
-          'title' => $next,
-          'subtitle' => query_last_eaten($user_id, 'eat', $next),
-          'type' => 'eat'
-        ];
-      }
-    }
+    $default_food = default_food_options();
+    $food = array_merge($food, $default_food);
   }
+  $food = array_slice($food, 0, $num_options);
 
 
   $options = [
