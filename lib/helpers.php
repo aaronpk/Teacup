@@ -277,7 +277,7 @@ function query_user_nearby_options($type, $user_id, $latitude, $longitude) {
     WHERE num > 2 /* only include things that have been used more than 2 times in this bucket */
     GROUP BY content /* group by name again */
     ORDER BY SUM(num) DESC /* order by overall frequency */ 
-    LIMIT 4   
+    LIMIT 6
   ', ['user_id'=>$user_id, 'type'=>$type, 'latitude'=>$latitude, 'longitude'=>$longitude, 'published'=>$published])->find_many();
   foreach($optionsQ as $o) {
     $options[] = [
@@ -300,7 +300,7 @@ function query_user_frequent_options($type, $user_id) {
       AND published > :published
     GROUP BY content
     ORDER BY COUNT(1) DESC
-    LIMIT 4
+    LIMIT 6
   ', ['user_id'=>$user_id, 'type'=>$type, 'published'=>$published])->find_many();
   foreach($optionsQ as $o) {
     $options[] = [
@@ -351,7 +351,7 @@ function query_last_eaten($user_id, $type, $content) {
 function get_entry_options($user_id, $latitude=null, $longitude=null) {
   /* 
     Sections:
-    * Recent 2 posts (food + drink combined)
+    * Recent posts (food + drink combined)
     * Drinks (based on location)
       * custom box below
     * Food (based on location)
@@ -373,13 +373,25 @@ function get_entry_options($user_id, $latitude=null, $longitude=null) {
       ORDER BY published DESC) AS tmp
     GROUP BY content
     ORDER BY MAX(published) DESC
-    LIMIT 4', ['user_id'=>$user_id])->find_many();
+    LIMIT 6', ['user_id'=>$user_id])->find_many();
+  $last_latitude = false;
+  $last_longitude = false;
   foreach($recentQ as $r) {
+    if($last_latitude == false && $r->latitude) {
+      $last_latitude = $r->latitude;
+      $last_longitude = $r->longitude;
+    }
     $recent[] = [
       'title' => $r->content,
       'subtitle' => query_last_eaten($user_id, $r->type, $r->content),
       'type' => $r->type
     ];
+  }
+
+  // If no location was provided, but there is a location in the most recent entry, use that
+  if($latitude == null && $last_latitude) {
+    $latitude = $last_latitude;
+    $longitude = $last_longitude;
   }
 
   if($latitude) {
@@ -390,9 +402,10 @@ function get_entry_options($user_id, $latitude=null, $longitude=null) {
     $drinks = query_user_frequent_options('drink', $user_id);
   }
   // If there's less than 4 options available, fill the list with the default options
-  if(count($drinks) < 4) {
+  $num_options = 6;
+  if(count($drinks) < 6) {
     $default = default_drink_options();
-    while(count($drinks) < 4) {
+    while(count($drinks) < 6) {
       $next = array_shift($default);
       if(!in_array(['title'=>$next,'type'=>'drink'], $drinks)) {
         $drinks[] = [
@@ -410,9 +423,9 @@ function get_entry_options($user_id, $latitude=null, $longitude=null) {
   if(count($food) == 0) {
     $food = query_user_frequent_options('eat', $user_id);
   }
-  if(count($food) < 4) {
+  if(count($food) < $num_options) {
     $default = default_food_options();
-    while(count($food) < 4) {
+    while(count($food) < $num_options) {
       $next = array_shift($default);
       if(!in_array(['title'=>$next,'type'=>'eat'], $food)) {
         $food[] = [

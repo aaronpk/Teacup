@@ -12,7 +12,6 @@
         </div>
 
         <div id="entry-buttons">
-          <?= partial('partials/entry-buttons', ['options'=>$this->default_options]) ?>
         </div>
 
         <div class="form-group">
@@ -84,12 +83,6 @@ $(function(){
     return num;
   }
 
-  // Set the date from JS
-  var d = new Date();
-  $("#note_date").val(d.getFullYear()+"-"+zero_pad(d.getMonth()+1)+"-"+zero_pad(d.getDate()));
-  $("#note_time").val(zero_pad(d.getHours())+":"+zero_pad(d.getMinutes())+":"+zero_pad(d.getSeconds()));
-  $("#note_tzoffset").val(tz_seconds_to_offset(d.getTimezoneOffset() * 60 * -1));
-
   function bind_keyboard_shortcuts() {
     $(".text-custom-eat").keydown(function(e){
       if(e.keyCode == 13) {
@@ -105,11 +98,9 @@ $(function(){
     });
   }
 
-  bind_keyboard_shortcuts();
-
   function location_error(msg) {
     $("#note_location_msg").val(msg);
-    $("#note_location_chk").removeAttr("checked");
+    // $("#note_location_chk").removeAttr("checked");
     $("#note_location_loading").hide();
     $("#note_location_img").hide();
     $("#note_location_msg").removeClass("img-visible");
@@ -123,34 +114,7 @@ $(function(){
 
     navigator.geolocation.getCurrentPosition(function(position){
 
-      $.getJSON('/options.json', {
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude
-      }, function(response) {
-        // save and restore the value entered in the custom fields 
-        var custom_eat = $('#custom_eat').val();
-        var custom_drink = $('#custom_drink').val();
-
-        var selected = false;
-        if($("#custom_drink:focus").length == 1) {
-          selected = '#custom_drink';
-        }
-        if($("#custom_eat:focus").length == 1) {
-          selected = '#custom_eat';
-        }
-
-        $("#entry-buttons").html(response.buttons);
-
-        // restore the custom values entered
-        $('#custom_eat').val(custom_eat);
-        $('#custom_drink').val(custom_drink);
-
-        if(selected) {
-          $(selected).focus();
-        }
-
-        bind_keyboard_shortcuts();
-      });
+      load_entry_buttons(position.coords);
 
       $("#note_location_loading").hide();
       var geo = "geo:" + (Math.round(position.coords.latitude * 100000) / 100000) + "," + (Math.round(position.coords.longitude * 100000) / 100000) + ";u=" + position.coords.accuracy;
@@ -169,17 +133,32 @@ $(function(){
       } else if(err.code == 3) {
         location_error("Timed out getting location");
       }
+      
+      // Load the entry buttons with no location context
+      load_entry_buttons();
+    });
+  }
+
+  function set_location_enabled(enabled) {
+    localforage.setItem('location-enabled', {enabled: enabled});    
+  }
+  function get_location_enabled(callback) {
+    localforage.getItem('location-enabled', function(err,val){
+      if(val) {
+        callback(val.enabled);
+      } else {
+        callback(false);
+      }
     });
   }
 
   $("#note_location_chk").click(function(){
     if($(this).attr("checked") == "checked") {
       if(navigator.geolocation) {
-        $.post("/prefs", {
-          enabled: 1
-        });
-        fetch_location();
+        set_location_enabled(true);
+        fetch_location(); // will load the entry buttons even if location fails
       } else {
+        set_location_enabled(false);
         location_error("Browser location is not supported");
       }
     } else {
@@ -188,16 +167,47 @@ $(function(){
       $("#note_location_msg").val('');
       $("#note_location").val('');
 
-      $.post("/prefs", {
-        enabled: 0
-      });
+      set_location_enabled(false);
     }
   });
 
-  if($("#location_enabled").val() == 1) {
-    $("#note_location_chk").attr("checked","checked");
-    fetch_location();
+  // This loads the buttons with or without location 
+  function load_entry_buttons(coords) {
+    var latitude = coords ? coords.latitude : '';
+    var longitude = coords ? coords.longitude : '';
+
+    $.getJSON('/options.json', {
+      latitude: latitude,
+      longitude: longitude
+    }, function(response) {
+      $("#entry-buttons").html(response.buttons);
+      bind_keyboard_shortcuts();
+    });
   }
+
+  ///////////////////////////////////////////////////////////////
+  // App Start
+
+  // Set the date from JS
+  var d = new Date();
+  $("#note_date").val(d.getFullYear()+"-"+zero_pad(d.getMonth()+1)+"-"+zero_pad(d.getDate()));
+  $("#note_time").val(zero_pad(d.getHours())+":"+zero_pad(d.getMinutes())+":"+zero_pad(d.getSeconds()));
+  $("#note_tzoffset").val(tz_seconds_to_offset(d.getTimezoneOffset() * 60 * -1));
+
+  // Check if location is enabled in the localstorage prefs
+  get_location_enabled(function(enabled){
+    if(enabled) {
+      // If location is enabled, fetch location and load the entry buttons
+      fetch_location(); // will load the buttons even if location fails
+      $("#note_location_chk").attr("checked","checked");
+
+    } else {
+      // If location is not enabled, fetch prefs immediately
+      $("#note_location_chk").removeAttr("checked");
+      load_entry_buttons();
+
+    }
+  });
 
 });
 
