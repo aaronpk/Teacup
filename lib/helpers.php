@@ -314,7 +314,7 @@ function query_user_frequent_options($type, $user_id) {
 
 function query_last_eaten($user_id, $type, $content) {
   $lastQ = ORM::for_table('entries')->raw_query('
-    SELECT published, timezone
+    SELECT published, timezone, tz_offset
     FROM entries
     WHERE user_id=:user_id
       AND type=:type
@@ -328,8 +328,13 @@ function query_last_eaten($user_id, $type, $content) {
   $timestamp = strtotime($lastQ->published);
   // If less than 8 hours ago, use relative time, otherwise show the actual time
   if(time() - $timestamp > 60*60*8) {
-    $date = new DateTime($lastQ->published);
-    $date->setTimeZone(new DateTimeZone($lastQ->timezone));
+    if($lastQ->timezone) {
+      $date = new DateTime($lastQ->published);
+      $date->setTimeZone(new DateTimeZone($lastQ->timezone));
+    } else {
+      $iso = date_iso8601($lastQ->published, $lastQ->tz_offset);
+      $date = new DateTime($iso);
+    }
     return $date->format('D, M j, g:ia');
   } else {
     $config = array(
