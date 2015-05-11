@@ -7,8 +7,8 @@
           <h3>Date</h3>
           
           <input type="date" class="form-control" style="max-width:160px; float:left; margin-right: 4px;" id="note_date" name="note_date" value="">
-          <input type="text" class="form-control" style="max-width:90px; float:left; margin-right: 4px;" id="note_time" name="note_time" value="">
-          <input type="text" class="form-control" style="max-width:90px;" id="note_tzoffset" name="note_tzoffset" value="">
+          <input type="text" class="form-control" style="max-width:85px; float:left; margin-right: 4px;" id="note_time" name="note_time" value="">
+          <input type="text" class="form-control" style="max-width:75px;" id="note_tzoffset" name="note_tzoffset" value="">
         </div>
 
         <div id="entry-buttons">
