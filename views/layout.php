@@ -65,5 +65,11 @@
 
 </div>
 
+<div id="new_version_available">
+  <div class="inner">
+    There is a new version available! Refresh to load the new version.
+  </div>
+</div>
+
 </body>
 </html>
