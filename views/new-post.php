@@ -168,6 +168,11 @@ $(function(){
       $("#note_location").val('');
 
       set_location_enabled(false);
+
+      // Load the buttons now
+      // This is for when the browser is taking too long to find location,
+      // the user might un-check the box
+      load_entry_buttons();
     }
   });
 
@@ -213,7 +218,7 @@ $(function(){
     // Show the notice that says there is a new version of the app
     $("#new_version_available").show();    
   }
-  
+
   window.applicationCache.addEventListener('updateready', onUpdateReady);
   if(window.applicationCache.status === window.applicationCache.UPDATEREADY) {
     onUpdateReady();
