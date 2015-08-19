@@ -231,7 +231,7 @@ function tz_seconds_to_offset($seconds) {
 function tz_offset_to_seconds($offset) {
   if(preg_match('/([+-])(\d{2}):?(\d{2})/', $offset, $match)) {
     $sign = ($match[1] == '-' ? -1 : 1);
-    return ($match[2] * 60 * 60) + ($match[3] * 60) * $sign;
+    return (($match[2] * 60 * 60) + ($match[3] * 60)) * $sign;
   } else {
     return 0;
   }
