@@ -1,5 +1,4 @@
 CACHE MANIFEST
-/new
 /bootstrap/css/bootstrap.min.css
 /bootstrap/css/bootstrap-theme.css
 /bootstrap/css/bootstrap-theme.css.map
@@ -12,4 +11,4 @@ CACHE MANIFEST
 NETWORK:
 *
 
-# v29
+# v31

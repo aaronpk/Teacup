@@ -80,10 +80,18 @@ $app->get('/new', function() use($app) {
       'tz_offset' => $tz_offset,
       'date_str' => $date_str,
       'time_str' => $time_str,
-      'enable_appcache' => true
+      'enable_array_micropub' => $user->enable_array_micropub
     ));
     $app->response()->body($html);
   }
+});
+
+$app->post('/prefs/enable-h-food', function() use($app){
+  if($user=require_login($app)) {
+    $user->enable_array_micropub = 1;
+    $user->save();
+  }
+  $app->redirect('/new', 302);
 });
 
 $app->post('/prefs', function() use($app) {
@@ -136,7 +144,7 @@ $app->get('/add-to-home', function() use($app) {
     if($user=require_login($app)) {
       if(array_key_exists('start', $params)) {
         $_SESSION['add-to-home-started'] = true;
-        
+
         $token = JWT::encode(array(
           'user_id' => $_SESSION['user_id'],
           'me' => $_SESSION['me'],
@@ -189,7 +197,7 @@ $app->post('/post', function() use($app) {
         $now = new DateTime();
         $now->setTimeZone(new DateTimeZone($entry->timezone));
         $published = $now->format('c');
-      }      
+      }
     }
 
 
@@ -228,11 +236,21 @@ $app->post('/post', function() use($app) {
       $mp_request = array(
         'h' => 'entry',
         'published' => $published,
-        'p3k-food' => $entry->content,
-        'p3k-type' => $type,
+        'created' => $published,
         'location' => k($params, 'location'),
         'summary' => $text_content
       );
+      if($user->enable_array_micropub) {
+        $mp_request[$verb] = [
+          'type' => 'h-food',
+          'properties' => [
+            'name' => $entry->content
+          ]
+        ];
+      } else {
+        $mp_request['p3k-food'] = $entry->content;
+        $mp_request['p3k-type'] = $type;
+      }
 
       $r = micropub_post($user->micropub_endpoint, $mp_request, $user->access_token);
       $request = $r['request'];
@@ -289,12 +307,14 @@ $app->get('/map.png', function() use($app) {
   $app->response()->body($img);
 });
 
+/*
 $app->get('/teacup.appcache', function() use($app) {
   $content = partial('appcache');
 
   $app->response()['Content-type'] = 'text/cache-manifest';
   $app->response()->body($content);
 });
+*/
 
 $app->get('/:domain', function($domain) use($app) {
   $params = $app->request()->params();
@@ -372,5 +392,3 @@ $app->get('/:domain/:entry', function($domain, $entry_id) use($app) {
   'domain' => '[a-zA-Z0-9\.-]+\.[a-z]+',
   'entry' => '\d+'
 ));
-
-

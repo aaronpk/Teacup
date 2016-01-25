@@ -5,7 +5,7 @@
 
         <div class="form-group">
           <h3>Date</h3>
-          
+
           <input type="date" class="form-control" style="max-width:160px; float:left; margin-right: 4px;" id="note_date" name="note_date" value="">
           <input type="text" class="form-control" style="max-width:85px; float:left; margin-right: 4px;" id="note_time" name="note_time" value="">
           <input type="text" class="form-control" style="max-width:75px;" id="note_tzoffset" name="note_tzoffset" value="">
@@ -26,7 +26,7 @@
             <img src="" height="320" id="note_location_img_small" class="img-responsive">
           </div>
         </div>
-        
+
       </form>
 
       <?php if($this->micropub_endpoint): ?>
@@ -51,6 +51,19 @@
               <td>access token</td>
               <td class="break">String of length <b><?= strlen($this->access_token) ?></b><?= (strlen($this->access_token) > 0) ? (', ending in <code>' . substr($this->access_token, -7) . '</code>') : '' ?> (should be greater than length 0)</td>
             </tr>
+            <?php if($this->enable_array_micropub): ?>
+              <tr>
+                <td>ate or drank</td>
+                <td class="break">
+                  <p>The parameter named <code>ate</code> or <code>drank</code> will include an <code>h-food</code> object corresponding to the item you tapped.</p>
+                  <pre>ate[type]=h-food&amp;ate[properties][name]=Coffee</pre>
+                </td>
+              </tr>
+            <?php else: ?>
+            <tr>
+              <td>h-food</td>
+              <td class="break"><form action="/prefs/enable-h-food" method="post"><input type="submit" class="btn btn-default" value="Switch to new h-food format"></form></td>
+            </tr>
             <tr>
               <td>p3k-food</td>
               <td class="break">The button you tap (or your custom text) will be sent to your Micropub endpoint in a field named <code>p3k-food</code></td>
@@ -59,6 +72,7 @@
               <td>p3k-type</td>
               <td class="break">Will be either <code>drink</code> or <code>eat</code> depending on the type of entry</td>
             </tr>
+            <?php endif; ?>
           </table>
         </div>
       </div>
@@ -133,14 +147,14 @@ $(function(){
       } else if(err.code == 3) {
         location_error("Timed out getting location");
       }
-      
+
       // Load the entry buttons with no location context
       load_entry_buttons();
     });
   }
 
   function set_location_enabled(enabled) {
-    localforage.setItem('location-enabled', {enabled: enabled});    
+    localforage.setItem('location-enabled', {enabled: enabled});
   }
   function get_location_enabled(callback) {
     localforage.getItem('location-enabled', function(err,val){
@@ -176,7 +190,7 @@ $(function(){
     }
   });
 
-  // This loads the buttons with or without location 
+  // This loads the buttons with or without location
   function load_entry_buttons(coords) {
     var latitude = coords ? coords.latitude : '';
     var longitude = coords ? coords.longitude : '';
@@ -216,13 +230,13 @@ $(function(){
 
   function onUpdateReady() {
     // Show the notice that says there is a new version of the app
-    $("#new_version_available").show();    
+    $("#new_version_available").show();
   }
 
   window.applicationCache.addEventListener('updateready', onUpdateReady);
   if(window.applicationCache.status === window.applicationCache.UPDATEREADY) {
     onUpdateReady();
-  }  
+  }
 
 });
 
