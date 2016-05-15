@@ -394,7 +394,7 @@ function get_entry_options($user_id, $latitude=null, $longitude=null) {
       FROM entries
       WHERE user_id = :user_id
       ORDER BY published DESC) AS tmp
-    GROUP BY content
+    GROUP BY content, type
     ORDER BY MAX(published) DESC
     LIMIT 6', ['user_id'=>$user_id])->find_many();
   $last_latitude = false;
