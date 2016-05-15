@@ -72,6 +72,7 @@ $app->get('/new', function() use($app) {
     $html = render('new-post', array(
       'title' => 'New Post',
       'micropub_endpoint' => $user->micropub_endpoint,
+      'micropub_media_endpoint' => $user->micropub_media_endpoint,
       'token_scope' => $user->token_scope,
       'access_token' => $user->access_token,
       'response_date' => $user->last_micropub_response_date,
@@ -223,6 +224,10 @@ $app->post('/post', function() use($app) {
       $verb = 'ate';
     }
 
+    if($user->micropub_media_endpoint && k($params, 'note_photo')) {
+      $entry->photo_url = $params['note_photo'];
+    }
+
     $entry->type = $type;
 
     $entry->save();
@@ -240,6 +245,9 @@ $app->post('/post', function() use($app) {
         'location' => k($params, 'location'),
         'summary' => $text_content
       );
+      if($entry->photo_url) {
+        $mp_request['photo'] = $entry->photo_url;
+      }
       if($user->enable_array_micropub) {
         $mp_request[$verb] = [
           'type' => 'h-food',
@@ -278,6 +286,36 @@ $app->post('/post', function() use($app) {
       $url = Config::$base_url . $user->url . '/' . $entry->id;
       $app->redirect($url);
     }
+  }
+});
+
+$app->post('/micropub/media', function() use($app) {
+  if($user=require_login($app)) {
+    $file = isset($_FILES['photo']) ? $_FILES['photo'] : null;
+    $error = validate_photo($file);
+    unset($_POST['null']);
+
+    if(!$error) {
+      $file_path = $file['tmp_name'];
+      correct_photo_rotation($file_path);
+      $r = micropub_media_post($user->micropub_media_endpoint, $user->access_token, $file_path);
+    } else {
+      $r = array('error' => $error);
+    }
+    $response = $r['response'];
+
+    $url = null;
+    if($response && preg_match('/Location: (.+)/', $response, $match)) {
+      $url = trim($match[1]);
+    } else {
+      $r['error'] = "No 'Location' header in response.";
+    }
+
+    $app->response()['Content-type'] = 'application/json';
+    $app->response()->body(json_encode(array(
+      'location' => $url,
+      'error' => (isset($r['error']) ? $r['error'] : null),
+    )));
   }
 });
 

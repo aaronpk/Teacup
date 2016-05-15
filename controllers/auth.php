@@ -250,14 +250,6 @@ $app->get('/auth/callback', function() use($app) {
     if(k($token['auth'], array('me','access_token','scope'))) {
       $_SESSION['auth'] = $token['auth'];
       $_SESSION['me'] = $params['me'];
-
-      // TODO?
-      // This client requires the "post" scope.
-
-
-      // Make a request to the micropub endpoint to discover the syndication targets if any.
-      // Errors are silently ignored here. The user will be able to retry from the new post interface and get feedback.
-      // get_syndication_targets($user);
     }
 
   } else {
@@ -281,9 +273,8 @@ $app->get('/auth/callback', function() use($app) {
     }
   }
 
-
   // Verify the login actually succeeded
-  if(!array_key_exists('me', $_SESSION)) {
+  if(!k($token['auth'], 'me')) {
     $html = render('auth_error', array(
       'title' => 'Sign-In Failed',
       'error' => 'Unable to verify the sign-in attempt',
@@ -316,6 +307,10 @@ $app->get('/auth/callback', function() use($app) {
   $_SESSION['user_id'] = $user->id();
 
 
+  if($tokenEndpoint) {
+    // Make a request to the micropub endpoint to discover the media endpoint if set.
+    get_micropub_config($user);
+  }
 
   unset($_SESSION['auth_state']);
 

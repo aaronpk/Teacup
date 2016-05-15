@@ -11,6 +11,26 @@
           <input type="text" class="form-control" style="max-width:75px;" id="note_tzoffset" name="note_tzoffset" value="">
         </div>
 
+        <?php if($this->micropub_media_endpoint): ?>
+          <div class="form-group">
+            <h3>Photo</h3>
+
+            <input type="file" name="note_photo_upload" id="note_photo_upload" accept="image/*">
+            <div id="note_photo_loading" class="hidden">
+              <img src="/images/spinner.gif"> Uploading...
+            </div>
+
+            <div id="photo_preview_container" class="hidden">
+              <input type="text" name="note_photo" id="note_photo" class="form-control" readonly="readonly"><br>
+              <img src="" id="photo_preview" style="max-width: 300px; max-height: 300px;">
+              <div>
+                <button type="button" class="btn btn-danger btn-sm" id="remove_photo"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Remove image</button>
+              </div>
+            </div>
+
+          </div>
+        <?php endif; ?>
+
         <div id="entry-buttons">
         </div>
 
@@ -95,6 +115,14 @@ $(function(){
       num = "0" + num;
     }
     return num;
+  }
+
+  function replacePhotoWithPhotoURL(url) {
+    $("#note_photo").val(url);
+    $("#note_photo_upload").addClass("hidden");  
+    $("#note_photo_loading").addClass("hidden");
+    $("#photo_preview").attr("src", url);
+    $("#photo_preview_container").removeClass("hidden");
   }
 
   function bind_keyboard_shortcuts() {
@@ -203,6 +231,42 @@ $(function(){
       bind_keyboard_shortcuts();
     });
   }
+
+  $("#photo_preview_container").addClass("hidden");
+  $("#note_photo_upload").on("change", function(e){
+
+    $("#note_photo_upload").addClass("hidden");
+    $("#note_photo_loading").removeClass("hidden");
+
+    var formData = new FormData();
+    formData.append("null","null");
+    formData.append("photo", e.target.files[0]);
+    var request = new XMLHttpRequest();
+    request.open("POST", "/micropub/media");
+    request.onreadystatechange = function() {
+      if(request.readyState == XMLHttpRequest.DONE) {
+        try {
+          var response = JSON.parse(request.responseText);
+          if(response.location) {
+            // Replace the file upload form with the URL
+            replacePhotoWithPhotoURL(response.location);
+            saveNoteState();
+          } else {
+            console.log("Endpoint did not return a location header", response);
+          }
+        } catch(e) {
+          console.log(e);
+        }
+      }
+    }
+    request.send(formData);
+  });
+  $("#remove_photo").on("click", function(){
+    $("#note_photo").val("");
+    $("#note_photo_upload").removeClass("hidden").val("");
+    $("#photo_preview").attr("src", "" );
+    $("#photo_preview_container").addClass("hidden");
+  });
 
   ///////////////////////////////////////////////////////////////
   // App Start

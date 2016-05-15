@@ -95,6 +95,7 @@ if(!function_exists('http_build_url')) {
     return "$scheme$user$pass$host$port$path$query$fragment"; 
   } 
 }
+
 function micropub_post($endpoint, $params, $access_token) {
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $endpoint);
@@ -122,6 +123,33 @@ function micropub_post($endpoint, $params, $access_token) {
   );
 }
 
+function micropub_media_post($endpoint, $access_token, $file) {
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_URL, $endpoint);
+  curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+    'Authorization: Bearer ' . $access_token
+  ));
+  curl_setopt($ch, CURLOPT_POST, true);
+
+  $post = [
+    'photo' => new CURLFile($file)
+  ];
+
+  curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($ch, CURLOPT_HEADER, true);
+  curl_setopt($ch, CURLINFO_HEADER_OUT, true);
+  $response = curl_exec($ch);
+  $error = curl_error($ch);
+  $sent_headers = curl_getinfo($ch, CURLINFO_HEADER_OUT);
+
+  return array(
+    'response' => $response,
+    'error' => $error,
+    'curlinfo' => curl_getinfo($ch)
+  );
+}
+
 function micropub_get($endpoint, $params, $access_token) {
   $url = parse_url($endpoint);
   if(!k($url, 'query')) {
@@ -134,13 +162,14 @@ function micropub_get($endpoint, $params, $access_token) {
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $endpoint);
   curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-    'Authorization: Bearer ' . $access_token
+    'Authorization: Bearer ' . $access_token,
+    'Accept: application/json',
   ));
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
   $response = curl_exec($ch);
   $data = array();
   if($response) {
-    parse_str($response, $data);
+    $data = @json_decode($response, true);
   }
   $error = curl_error($ch);
   return array(
@@ -151,43 +180,17 @@ function micropub_get($endpoint, $params, $access_token) {
   );
 }
 
-function get_syndication_targets(&$user) {
+function get_micropub_config(&$user) {
   $targets = array();
 
-  $r = micropub_get($user->micropub_endpoint, array('q'=>'syndicate-to'), $user->micropub_access_token);
-  if($r['data'] && array_key_exists('syndicate-to', $r['data'])) {
-    $targetURLs = preg_split('/, ?/', $r['data']['syndicate-to']);
-    foreach($targetURLs as $t) {
+  $r = micropub_get($user->micropub_endpoint, [], $user->access_token);
 
-      // If the syndication target doesn't have a scheme, add http
-      if(!preg_match('/^http/', $t))
-        $tmp = 'http://' . $t;
-
-      // Parse the target expecting it to be a URL
-      $url = parse_url($tmp);
-
-      // If there's a host, and the host contains a . then we can assume there's a favicon
-      // parse_url will parse strings like http://twitter into an array with a host of twitter, which is not resolvable
-      if(array_key_exists('host', $url) && strpos($url['host'], '.') !== false) {
-        $targets[] = array(
-          'target' => $t,
-          'favicon' => 'http://' . $url['host'] . '/favicon.ico'
-        );
-      } else {
-        $targets[] = array(
-          'target' => $t,
-          'favicon' => false
-        );
-      }
-    }
-  }
-  if(count($targets)) {
-    $user->syndication_targets = json_encode($targets);
+  if(array_key_exists('media_endpoint', $r['data'])) {
+    $user->micropub_media_endpoint = $r['data']['media_endpoint'];
     $user->save();
   }
 
   return array(
-    'targets' => $targets,
     'response' => $r
   );
 }
@@ -253,6 +256,83 @@ function entry_date($entry, $user) {
   // $tz = new DateTimeZone($entry->timezone);
   // $date->setTimeZone($tz);
   // return $date;
+}
+
+function validate_photo(&$file) {
+  try {
+
+    if ($_SERVER['REQUEST_METHOD'] == 'POST' && count($_POST) < 1 ) {
+      throw new RuntimeException('File upload size exceeded.');
+    }
+   
+    // Undefined | Multiple Files | $_FILES Corruption Attack
+    // If this request falls under any of them, treat it invalid.
+    if (
+        !isset($file['error']) ||
+        is_array($file['error'])
+    ) {
+        throw new RuntimeException('Invalid parameters.');
+    }
+
+    // Check $file['error'] value.
+    switch ($file['error']) {
+        case UPLOAD_ERR_OK:
+            break;
+        case UPLOAD_ERR_NO_FILE:
+            throw new RuntimeException('No file sent.');
+        case UPLOAD_ERR_INI_SIZE:
+        case UPLOAD_ERR_FORM_SIZE:
+            throw new RuntimeException('Exceeded filesize limit.');
+        default:
+            throw new RuntimeException('Unknown errors.');
+    }
+
+    // You should also check filesize here.
+    if ($file['size'] > 4000000) {
+        throw new RuntimeException('Exceeded filesize limit.');
+    }
+
+    // DO NOT TRUST $file['mime'] VALUE !!
+    // Check MIME Type by yourself.
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    if (false === $ext = array_search(
+        $finfo->file($file['tmp_name']),
+        array(
+            'jpg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+        ),
+        true
+    )) {
+        throw new RuntimeException('Invalid file format.');
+    }
+
+  } catch (RuntimeException $e) {
+
+      return $e->getMessage();
+  }
+}
+
+// Reads the exif rotation data and actually rotates the photo.
+// Only does anything if the exif library is loaded, otherwise is a noop.
+function correct_photo_rotation($filename) {
+  if(class_exists('IMagick')) {
+    $image = new IMagick($filename);
+    $orientation = $image->getImageOrientation();
+    switch($orientation) {
+      case IMagick::ORIENTATION_BOTTOMRIGHT:
+        $image->rotateImage(new ImagickPixel('#00000000'), 180);
+        break;
+      case IMagick::ORIENTATION_RIGHTTOP:
+        $image->rotateImage(new ImagickPixel('#00000000'), 90);
+        break;
+      case IMagick::ORIENTATION_LEFTBOTTOM:
+        $image->rotateImage(new ImagickPixel('#00000000'), -90);
+        break;
+    }
+    $image->setImageOrientation(IMagick::ORIENTATION_TOPLEFT);
+    $image->writeImage($filename);
+  }
 }
 
 function default_drink_options() {
