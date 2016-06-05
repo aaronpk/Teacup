@@ -240,21 +240,25 @@ $(function(){
 
     var formData = new FormData();
     formData.append("null","null");
-    formData.append("photo", e.target.files[0]);
+    formData.append("file", e.target.files[0]);
     var request = new XMLHttpRequest();
     request.open("POST", "/micropub/media");
     request.onreadystatechange = function() {
       if(request.readyState == XMLHttpRequest.DONE) {
         try {
           var response = JSON.parse(request.responseText);
+          console.log(response);
           if(response.location) {
             // Replace the file upload form with the URL
             replacePhotoWithPhotoURL(response.location);
-            saveNoteState();
           } else {
             console.log("Endpoint did not return a location header", response);
+            $("#remove_photo").click();
+            $("#note_photo_loading").addClass("hidden");
           }
         } catch(e) {
+          $("#remove_photo").click();
+          $("#note_photo_loading").addClass("hidden");
           console.log(e);
         }
       }

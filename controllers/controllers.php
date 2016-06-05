@@ -291,7 +291,7 @@ $app->post('/post', function() use($app) {
 
 $app->post('/micropub/media', function() use($app) {
   if($user=require_login($app)) {
-    $file = isset($_FILES['photo']) ? $_FILES['photo'] : null;
+    $file = isset($_FILES['file']) ? $_FILES['file'] : null;
     $error = validate_photo($file);
     unset($_POST['null']);
 
@@ -309,13 +309,23 @@ $app->post('/micropub/media', function() use($app) {
       $url = trim($match[1]);
     } else {
       $r['error'] = "No 'Location' header in response.";
+      $r['debug'] = $response;
     }
 
     $app->response()['Content-type'] = 'application/json';
     $app->response()->body(json_encode(array(
       'location' => $url,
       'error' => (isset($r['error']) ? $r['error'] : null),
+      'debug' => (isset($r['debug']) ? $r['debug'] : null),
     )));
+  }
+});
+
+$app->get('/micropub/config', function() use($app) {
+  if($user=require_login($app)) {
+    $config = get_micropub_config($user);
+    $app->response()['Content-type'] = 'application/json';
+    $app->response()->body(json_encode($config));
   }
 });
 

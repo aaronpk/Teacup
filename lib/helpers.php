@@ -132,13 +132,14 @@ function micropub_media_post($endpoint, $access_token, $file) {
   curl_setopt($ch, CURLOPT_POST, true);
 
   $post = [
-    'photo' => new CURLFile($file)
+    'file' => new CURLFile($file)
   ];
 
   curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
   curl_setopt($ch, CURLOPT_HEADER, true);
   curl_setopt($ch, CURLINFO_HEADER_OUT, true);
+  curl_setopt($ch, CURLOPT_TIMEOUT, 20);
   $response = curl_exec($ch);
   $error = curl_error($ch);
   $sent_headers = curl_getinfo($ch, CURLINFO_HEADER_OUT);
@@ -185,8 +186,8 @@ function get_micropub_config(&$user) {
 
   $r = micropub_get($user->micropub_endpoint, [], $user->access_token);
 
-  if(array_key_exists('media_endpoint', $r['data'])) {
-    $user->micropub_media_endpoint = $r['data']['media_endpoint'];
+  if(array_key_exists('media-endpoint', $r['data'])) {
+    $user->micropub_media_endpoint = $r['data']['media-endpoint'];
     $user->save();
   }
 
@@ -200,7 +201,7 @@ function build_static_map_url($latitude, $longitude, $height, $width, $zoom) {
 }
 
 function static_map_service($query) {
-  return 'https://atlas.p3k.io/map/img?' . $query;
+  return 'http://atlas.dev/map/img?' . $query;
 }
 
 function relative_time($date) {
