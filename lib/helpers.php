@@ -200,7 +200,7 @@ function build_static_map_url($latitude, $longitude, $height, $width, $zoom) {
 }
 
 function static_map_service($query) {
-  return 'http://static-maps.pdx.esri.com/img.php?' . $query;
+  return 'https://atlas.p3k.io/map/img?' . $query;
 }
 
 function relative_time($date) {
