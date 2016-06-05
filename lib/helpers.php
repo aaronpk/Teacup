@@ -186,7 +186,7 @@ function get_micropub_config(&$user) {
 
   $r = micropub_get($user->micropub_endpoint, [], $user->access_token);
 
-  if(array_key_exists('media-endpoint', $r['data'])) {
+  if($r['data'] && is_array($r['data']) && array_key_exists('media-endpoint', $r['data'])) {
     $user->micropub_media_endpoint = $r['data']['media-endpoint'];
     $user->save();
   }
