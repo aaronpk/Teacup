@@ -57,7 +57,7 @@ $app->get('/new', function() use($app) {
     // will still be a list of options presented on the page by the time it loads.
     // Javascript will replace the options after location is available.
 
-    $html = render('new-post', array(
+    render('new-post', array(
       'title' => 'New Post',
       'micropub_endpoint' => $user->micropub_endpoint,
       'micropub_media_endpoint' => $user->micropub_media_endpoint,
@@ -71,6 +71,12 @@ $app->get('/new', function() use($app) {
       'time_str' => $time_str,
       'enable_array_micropub' => $user->enable_array_micropub
     ));
+  }
+});
+
+$app->get('/settings', function() use($app) {
+  if($user=require_login($app)) {
+    $html =     
     $app->response()->body($html);
   }
 });
@@ -98,13 +104,11 @@ $app->get('/creating-a-token-endpoint', function() use($app) {
   $app->redirect('http://indiewebcamp.com/token-endpoint', 301);
 });
 $app->get('/creating-a-micropub-endpoint', function() use($app) {
-  $html = render('creating-a-micropub-endpoint', array('title' => 'Creating a Micropub Endpoint'));
-  $app->response()->body($html);
+  render('creating-a-micropub-endpoint', array('title' => 'Creating a Micropub Endpoint'));
 });
 
 $app->get('/docs', function() use($app) {
-  $html = render('docs', array('title' => 'Documentation'));
-  $app->response()->body($html);
+  render('docs', array('title' => 'Documentation'));
 });
 
 $app->get('/add-to-home', function() use($app) {
@@ -143,8 +147,7 @@ $app->get('/add-to-home', function() use($app) {
         $app->redirect('/add-to-home?token='.$token, 302);
       } else {
         unset($_SESSION['add-to-home-started']);
-        $html = render('add-to-home', array('title' => 'Teacup'));
-        $app->response()->body($html);
+        render('add-to-home', array('title' => 'Teacup'));
       }
     }
   }
@@ -392,14 +395,13 @@ $app->get('/:domain', function($domain) use($app) {
       $newer = false;
   }
 
-  $html = render('entries', array(
+  render('entries', array(
     'title' => 'Teacup',
     'entries' => $entries,
     'user' => $user,
     'older' => ($older ? $older->id : false),
     'newer' => ($newer ? $newer->id : false)
   ));
-  $app->response()->body($html);
 })->conditions(array(
   'domain' => '[a-zA-Z0-9\.-]+\.[a-z]+'
 ));
@@ -418,12 +420,11 @@ $app->get('/:domain/:entry', function($domain, $entry_id) use($app) {
     return;
   }
 
-  $html = render('entry', array(
+  render('entry', array(
     'title' => 'Teacup',
     'entry' => $entry,
     'user' => $user
   ));
-  $app->response()->body($html);
 })->conditions(array(
   'domain' => '[a-zA-Z0-9\.-]+\.[a-z]+',
   'entry' => '\d+'
