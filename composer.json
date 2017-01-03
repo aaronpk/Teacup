@@ -7,7 +7,7 @@
     "indieweb/date-formatter": "0.1.*",
     "indieauth/client": "0.1.*",
     "mpratt/relativetime": ">=1.0",
-    "firebase/php-jwt": "dev-master",
+    "firebase/php-jwt": "^4.0",
     "p3k/multipart": "*"
   },
   "autoload": {

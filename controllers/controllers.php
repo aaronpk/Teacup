@@ -1,20 +1,8 @@
 <?php
+use \Firebase\JWT\JWT;
 
 function require_login(&$app) {
   $params = $app->request()->params();
-  if(array_key_exists('token', $params)) {
-    try {
-      $data = JWT::decode($params['token'], Config::$jwtSecret);
-      $_SESSION['user_id'] = $data->user_id;
-      $_SESSION['me'] = $data->me;
-    } catch(DomainException $e) {
-      header('X-Error: DomainException');
-      $app->redirect('/', 301);
-    } catch(UnexpectedValueException $e) {
-      header('X-Error: UnexpectedValueException');
-      $app->redirect('/', 301);
-    }
-  }
 
   if(!array_key_exists('user_id', $_SESSION)) {
     $app->redirect('/');
@@ -123,28 +111,28 @@ $app->get('/add-to-home', function() use($app) {
   $params = $app->request()->params();
   header("Cache-Control: no-cache, must-revalidate");
 
-  if(array_key_exists('token', $params) && !session('add-to-home-started')) {
-    unset($_SESSION['add-to-home-started']);
+  if(array_key_exists('token', $params) && !isset($_SESSION['add-to-home-started'])) {
 
     // Verify the token and sign the user in
     try {
-      $data = JWT::decode($params['token'], Config::$jwtSecret);
+      $data = JWT::decode($params['token'], Config::$jwtSecret, ['HS256']);
       $_SESSION['user_id'] = $data->user_id;
       $_SESSION['me'] = $data->me;
-      $app->redirect('/new', 301);
+      $app->redirect('/new', 302);
     } catch(DomainException $e) {
       header('X-Error: DomainException');
-      $app->redirect('/', 301);
-    } catch(UnexpectedValueException $e) {
-      header('X-Error: UnexpectedValueException');
-      $app->redirect('/', 301);
+      $app->redirect('/?error=domain', 302);
+    } catch(SignatureInvalidException $e) {
+      header('X-Error: SignatureInvalidException');
+      $app->redirect('/?error=invalid', 302);
+    } catch(ErrorException $e) {
+      $app->redirect('/?error=unknown', 302);
     }
 
   } else {
-
     if($user=require_login($app)) {
       if(array_key_exists('start', $params)) {
-        $_SESSION['add-to-home-started'] = true;
+        $_SESSION['add-to-home-started'] = 1;
 
         $token = JWT::encode(array(
           'user_id' => $_SESSION['user_id'],
@@ -152,7 +140,7 @@ $app->get('/add-to-home', function() use($app) {
           'created_at' => time()
         ), Config::$jwtSecret);
 
-        $app->redirect('/add-to-home?token='.$token, 301);
+        $app->redirect('/add-to-home?token='.$token, 302);
       } else {
         unset($_SESSION['add-to-home-started']);
         $html = render('add-to-home', array('title' => 'Teacup'));

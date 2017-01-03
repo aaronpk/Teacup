@@ -1,22 +1,24 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
     ],
-    "hash": "da493f8238b017e74269bc3cdeba5e92",
+    "hash": "c399b5d1b32e020f809404e3bfa32275",
+    "content-hash": "63122eac6f996b58bc73ed1359b12099",
     "packages": [
         {
             "name": "barnabywalters/mf-cleaner",
-            "version": "v0.1.3",
+            "version": "v0.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/barnabywalters/php-mf-cleaner.git",
-                "reference": "4ecbfc5a2893a5140b07afafb0bb00619e853809"
+                "reference": "ef6a16628db6e8aee2b4f8bb8093d18c24b74cd4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/barnabywalters/php-mf-cleaner/zipball/4ecbfc5a2893a5140b07afafb0bb00619e853809",
-                "reference": "4ecbfc5a2893a5140b07afafb0bb00619e853809",
+                "url": "https://api.github.com/repos/barnabywalters/php-mf-cleaner/zipball/ef6a16628db6e8aee2b4f8bb8093d18c24b74cd4",
+                "reference": "ef6a16628db6e8aee2b4f8bb8093d18c24b74cd4",
                 "shasum": ""
             },
             "require-dev": {
@@ -43,31 +45,30 @@
                 }
             ],
             "description": "Cleans up microformats2 array structures",
-            "time": "2014-05-16 15:25:47"
+            "time": "2014-10-06 23:11:15"
         },
         {
             "name": "firebase/php-jwt",
-            "version": "dev-master",
-            "target-dir": "Firebase/PHP-JWT",
+            "version": "v4.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/firebase/php-jwt.git",
-                "reference": "6e4b99948f79622aad86101c4baeb744d14d5946"
+                "reference": "dccf163dc8ed7ed6a00afc06c51ee5186a428d35"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/firebase/php-jwt/zipball/6e4b99948f79622aad86101c4baeb744d14d5946",
-                "reference": "6e4b99948f79622aad86101c4baeb744d14d5946",
+                "url": "https://api.github.com/repos/firebase/php-jwt/zipball/dccf163dc8ed7ed6a00afc06c51ee5186a428d35",
+                "reference": "dccf163dc8ed7ed6a00afc06c51ee5186a428d35",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.2.0"
+                "php": ">=5.3.0"
             },
             "type": "library",
             "autoload": {
-                "classmap": [
-                    "Authentication/"
-                ]
+                "psr-4": {
+                    "Firebase\\JWT\\": "src"
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -87,20 +88,20 @@
             ],
             "description": "A simple library to encode and decode JSON Web Tokens (JWT) in PHP. Should conform to the current spec.",
             "homepage": "https://github.com/firebase/php-jwt",
-            "time": "2014-09-10 01:49:07"
+            "time": "2016-07-18 04:51:16"
         },
         {
             "name": "indieauth/client",
-            "version": "0.1.8",
+            "version": "0.1.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/indieweb/indieauth-client-php.git",
-                "reference": "f979f8ee0fc6daaa6a393e7afdac894000d09544"
+                "reference": "d438bb03db15b4ccc6c63228be16de7870b6ab99"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/indieweb/indieauth-client-php/zipball/f979f8ee0fc6daaa6a393e7afdac894000d09544",
-                "reference": "f979f8ee0fc6daaa6a393e7afdac894000d09544",
+                "url": "https://api.github.com/repos/indieweb/indieauth-client-php/zipball/d438bb03db15b4ccc6c63228be16de7870b6ab99",
+                "reference": "d438bb03db15b4ccc6c63228be16de7870b6ab99",
                 "shasum": ""
             },
             "require": {
@@ -126,20 +127,20 @@
                 }
             ],
             "description": "IndieAuth Client Library",
-            "time": "2014-10-06 07:37:10"
+            "time": "2016-02-08 23:56:31"
         },
         {
             "name": "indieweb/date-formatter",
-            "version": "0.1.5",
+            "version": "0.1.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/indieweb/date-formatter-php.git",
-                "reference": "f0dc028ba53da4da2718d2a263300396b1c14203"
+                "reference": "9c12e0fda95f4b3119fcaf271d141305870c4350"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/indieweb/date-formatter-php/zipball/f0dc028ba53da4da2718d2a263300396b1c14203",
-                "reference": "f0dc028ba53da4da2718d2a263300396b1c14203",
+                "url": "https://api.github.com/repos/indieweb/date-formatter-php/zipball/9c12e0fda95f4b3119fcaf271d141305870c4350",
+                "reference": "9c12e0fda95f4b3119fcaf271d141305870c4350",
                 "shasum": ""
             },
             "require": {
@@ -169,7 +170,7 @@
                 "microformats",
                 "microformats2"
             ],
-            "time": "2013-10-27 23:46:11"
+            "time": "2015-10-28 00:32:39"
         },
         {
             "name": "indieweb/link-rel-parser",
@@ -277,16 +278,16 @@
         },
         {
             "name": "mf2/mf2",
-            "version": "v0.2.9",
+            "version": "v0.2.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/indieweb/php-mf2.git",
-                "reference": "ad1ee037555be7f3b2ea1d99e063e56207cf2a1d"
+                "reference": "6701504876d6c9242eb310b35f41d40d9785ab4e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/indieweb/php-mf2/zipball/ad1ee037555be7f3b2ea1d99e063e56207cf2a1d",
-                "reference": "ad1ee037555be7f3b2ea1d99e063e56207cf2a1d",
+                "url": "https://api.github.com/repos/indieweb/php-mf2/zipball/6701504876d6c9242eb310b35f41d40d9785ab4e",
+                "reference": "6701504876d6c9242eb310b35f41d40d9785ab4e",
                 "shasum": ""
             },
             "require": {
@@ -326,20 +327,20 @@
                 "parser",
                 "semantic"
             ],
-            "time": "2014-07-23 09:37:36"
+            "time": "2015-07-12 14:10:01"
         },
         {
             "name": "mpratt/relativetime",
-            "version": "1.0",
+            "version": "1.5.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mpratt/RelativeTime.git",
-                "reference": "5dd7078d2bc830227c1f5a0081c68c323fb18555"
+                "reference": "3dc1efd96c8edbd0fe9e5cdb423ca31428b9dbb7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mpratt/RelativeTime/zipball/5dd7078d2bc830227c1f5a0081c68c323fb18555",
-                "reference": "5dd7078d2bc830227c1f5a0081c68c323fb18555",
+                "url": "https://api.github.com/repos/mpratt/RelativeTime/zipball/3dc1efd96c8edbd0fe9e5cdb423ca31428b9dbb7",
+                "reference": "3dc1efd96c8edbd0fe9e5cdb423ca31428b9dbb7",
                 "shasum": ""
             },
             "require": {
@@ -374,7 +375,43 @@
                 "time",
                 "time-ago"
             ],
-            "time": "2013-09-23 22:51:48"
+            "time": "2015-12-24 12:43:04"
+        },
+        {
+            "name": "p3k/multipart",
+            "version": "0.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/aaronpk/php-multipart-encoder.git",
+                "reference": "f5400011b20046cebbdfed686d051fb2aa600a14"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/aaronpk/php-multipart-encoder/zipball/f5400011b20046cebbdfed686d051fb2aa600a14",
+                "reference": "f5400011b20046cebbdfed686d051fb2aa600a14",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">5.4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/p3k/Multipart.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache 2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Aaron Parecki",
+                    "homepage": "http://aaronparecki.com"
+                }
+            ],
+            "description": "Multipart Encoding Library",
+            "time": "2015-07-16 19:28:02"
         },
         {
             "name": "saltybeagle/savant3",
@@ -416,12 +453,12 @@
             "version": "2.2.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/codeguy/Slim.git",
+                "url": "https://github.com/slimphp/Slim.git",
                 "reference": "b8181de1112a1e2f565b40158b621c34ded38053"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/codeguy/Slim/zipball/b8181de1112a1e2f565b40158b621c34ded38053",
+                "url": "https://api.github.com/repos/slimphp/Slim/zipball/b8181de1112a1e2f565b40158b621c34ded38053",
                 "reference": "b8181de1112a1e2f565b40158b621c34ded38053",
                 "shasum": ""
             },
@@ -459,9 +496,10 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "saltybeagle/savant3": 20,
-        "firebase/php-jwt": 20
+        "saltybeagle/savant3": 20
     },
+    "prefer-stable": false,
+    "prefer-lowest": false,
     "platform": [],
     "platform-dev": []
 }
