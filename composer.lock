@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "c399b5d1b32e020f809404e3bfa32275",
-    "content-hash": "63122eac6f996b58bc73ed1359b12099",
+    "hash": "ebaa6e4aed4c7cfa5a835cbe2b92e629",
+    "content-hash": "4b3b194b582b716faa00f4da8ce8859b",
     "packages": [
         {
             "name": "barnabywalters/mf-cleaner",
@@ -328,6 +328,45 @@
                 "semantic"
             ],
             "time": "2015-07-12 14:10:01"
+        },
+        {
+            "name": "minicodemonkey/amazon-alexa-php",
+            "version": "0.1.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/MiniCodeMonkey/amazon-alexa-php.git",
+                "reference": "006a1e1e775d8429574cde1a093a8b9a4da6a960"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/MiniCodeMonkey/amazon-alexa-php/zipball/006a1e1e775d8429574cde1a093a8b9a4da6a960",
+                "reference": "006a1e1e775d8429574cde1a093a8b9a4da6a960",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.6"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Alexa\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mathias Hansen",
+                    "email": "me@codemonkey.io"
+                }
+            ],
+            "description": "Amazon Alexa interface for PHP",
+            "time": "2015-11-29 21:50:59"
         },
         {
             "name": "mpratt/relativetime",

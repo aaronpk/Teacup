@@ -76,8 +76,24 @@ $app->get('/new', function() use($app) {
 
 $app->get('/settings', function() use($app) {
   if($user=require_login($app)) {
-    $html =     
-    $app->response()->body($html);
+    render('settings', [
+      'title' => 'Settings',
+    ]);
+  }
+});
+
+$app->post('/settings/device-code', function() use($app) {
+  if($user=require_login($app)) {
+    $code = mt_rand(100000,999999);
+
+    $user->device_code = $code;
+    $user->device_code_expires = date('Y-m-d H:i:s', time()+300);
+    $user->save();
+
+    $app->response()['Content-Type'] = 'application/json';
+    $app->response()->body(json_encode([
+      'code' => $code
+    ]));
   }
 });
 
@@ -109,6 +125,10 @@ $app->get('/creating-a-micropub-endpoint', function() use($app) {
 
 $app->get('/docs', function() use($app) {
   render('docs', array('title' => 'Documentation'));
+});
+
+$app->get('/privacy', function() use($app) {
+  render('privacy', array('title' => 'Privacy Policy'));
 });
 
 $app->get('/add-to-home', function() use($app) {

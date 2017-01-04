@@ -11,7 +11,7 @@
       <ul class="nav navbar-nav navbar-right">
         <? if(session('me')) { ?>
           <li><a href="/add-to-home?start">Add to Home Screen</a></li>
-          <li><span class="navbar-text"><?= preg_replace('/https?:\/\//','',session('me')) ?></span></li>
+          <li><a href="/settings"><?= preg_replace(['/https?:\/\//','/\/$/'],'',session('me')) ?></a></li>
           <li><a href="/signout">Sign Out</a></li>
         <? } else if(property_exists($this, 'authorizing')) { ?>
           <li class="navbar-text"><?= $this->authorizing ?></li>
@@ -25,7 +25,7 @@
       </ul>
     </div>
 
-    <p class="credits">&copy; <?=date('Y')?> by <a href="http://aaronparecki.com">Aaron Parecki</a>.
+    <p class="credits">&copy; <?=date('Y')?> by <a href="https://aaronparecki.com">Aaron Parecki</a>.
       This code is <a href="https://github.com/aaronpk/Teacup">open source</a>. 
       Feel free to send a pull request, or <a href="https://github.com/aaronpk/Teacup/issues">file an issue</a>.</p>
   </div>

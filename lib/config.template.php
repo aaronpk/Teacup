@@ -12,5 +12,12 @@ class Config {
   public static $jwtSecret = 'xxx';
 
   public static $mf2Debug = false;
+
+  public static $alexaClientID = '';
+  public static $alexaClientSecret = '';
+  public static $alexaRedirectURIs = [
+    '',
+    ''
+  ];
 }
 

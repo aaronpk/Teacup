@@ -16,6 +16,8 @@ CREATE TABLE `users` (
   `date_created` datetime DEFAULT NULL,
   `last_login` datetime DEFAULT NULL,
   `enable_array_micropub` tinyint(4) NOT NULL DEFAULT '1',
+  `device_code` varchar(10) DEFAULT NULL,
+  `device_code_expires` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
