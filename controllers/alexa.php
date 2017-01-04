@@ -61,8 +61,6 @@ $app->post('/alexa/login', function() use($app) {
   $req = $app->request();
   $params = $req->params();
 
-  file_put_contents('logs/login.txt', json_encode($params));
-
   $required = ['code', 'client_id', 'state', 'redirect_uri'];
   $params_present = array_keys($params);
 
@@ -177,7 +175,6 @@ $app->post('/alexa/endpoint', function() use($app) {
   $alexaRequest = \Alexa\Request\Request::fromData($json);
 
   if($alexaRequest instanceof Alexa\Request\IntentRequest) {
-    # file_put_contents('logs/request.txt', $input);
 
     # Verify the access token
     try {
@@ -249,7 +246,8 @@ $app->post('/alexa/endpoint', function() use($app) {
 
     $response = new \Alexa\Response\Response;
     $response->respond('Got it!')
-      ->withCard('You '.$action.': '.$food);
+      ->withCard('You '.$action.': '.$food, $url)
+      ->endSession(true);
 
     $app->response()['Content-type'] = 'application/json';
     $app->response()->body(json_encode($response->render()));
