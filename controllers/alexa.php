@@ -197,6 +197,7 @@ $app->post('/alexa/endpoint', function() use($app) {
     }
 
     $action = $alexaRequest->slots['Action'];
+    $action = ($action == 'drank' ? 'drank' : 'ate');
     $food = ucfirst($alexaRequest->slots['Food']);
 
 
