@@ -122,7 +122,7 @@ $app->get('/auth/start', function() use($app) {
   $_SESSION['pebble'] = $pebble;
 
   if($tokenEndpoint && $micropubEndpoint && $authorizationEndpoint) {
-    $scope = 'post';
+    $scope = 'create';
     $authorizationURL = IndieAuth\Client::buildAuthorizationURL($authorizationEndpoint, $me, buildRedirectURI(), clientID($pebble), $state, $scope);
   } else {
     $authorizationURL = IndieAuth\Client::buildAuthorizationURL('https://indieauth.com/auth', $me, buildRedirectURI(), clientID($pebble), $state);
