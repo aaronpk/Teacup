@@ -69,7 +69,7 @@ function parse_geo_uri($uri) {
 function get_timezone($lat, $lng) {
   try {
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, 'http://atlas.p3k.io/api/timezone?latitude='.$lat.'&longitude='.$lng);
+    curl_setopt($ch, CURLOPT_URL, 'https://atlas.p3k.io/api/timezone?latitude='.$lat.'&longitude='.$lng);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     $response = curl_exec($ch);
     $tz = @json_decode($response);
@@ -201,7 +201,7 @@ function build_static_map_url($latitude, $longitude, $height, $width, $zoom) {
 }
 
 function static_map_service($query) {
-  return 'http://atlas.dev/map/img?' . $query;
+  return 'https://atlas.p3k.io/map/img?' . $query;
 }
 
 function relative_time($date) {
