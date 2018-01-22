@@ -15,8 +15,7 @@
     "files": [
       "lib/Savant.php",
       "lib/config.php",
-      "lib/helpers.php",
-      "lib/markdown.php"
+      "lib/helpers.php"
     ]
   }
 }

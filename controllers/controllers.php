@@ -117,10 +117,10 @@ $app->post('/prefs', function() use($app) {
 });
 
 $app->get('/creating-a-token-endpoint', function() use($app) {
-  $app->redirect('http://indiewebcamp.com/token-endpoint', 301);
+  $app->redirect('https://indieweb.org/token-endpoint', 301);
 });
 $app->get('/creating-a-micropub-endpoint', function() use($app) {
-  render('creating-a-micropub-endpoint', array('title' => 'Creating a Micropub Endpoint'));
+  $app->redirect('https://indieweb.org/Micropub', 301);
 });
 
 $app->get('/docs', function() use($app) {
