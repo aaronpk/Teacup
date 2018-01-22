@@ -102,6 +102,8 @@ $app->get('/auth/start', function() use($app) {
     return;
   }
 
+  $_SESSION['attempted_me'] = $me;
+
   $authorizationEndpoint = IndieAuth\Client::discoverAuthorizationEndpoint($me);
   $tokenEndpoint = IndieAuth\Client::discoverTokenEndpoint($me);
   $micropubEndpoint = IndieAuth\Client::discoverMicropubEndpoint($me);
@@ -124,6 +126,9 @@ $app->get('/auth/start', function() use($app) {
   if($tokenEndpoint && $micropubEndpoint && $authorizationEndpoint) {
     $scope = 'create';
     $authorizationURL = IndieAuth\Client::buildAuthorizationURL($authorizationEndpoint, $me, buildRedirectURI(), clientID($pebble), $state, $scope);
+    $_SESSION['authorization_endpoint'] = $authorizationEndpoint;
+    $_SESSION['micropub_endpoint'] = $micropubEndpoint;
+    $_SESSION['token_endpoint'] = $tokenEndpoint;
   } else {
     $authorizationURL = IndieAuth\Client::buildAuthorizationURL('https://indieauth.com/auth', $me, buildRedirectURI(), clientID($pebble), $state);
   }
@@ -175,20 +180,13 @@ $app->get('/auth/callback', function() use($app) {
   $req = $app->request();
   $params = $req->params();
 
-  // Double check there is a "me" parameter
-  // Should only fail for really hacked up requests
-  if(!array_key_exists('me', $params) || !($me = normalizeMeURL($params['me']))) {
-    render('auth_error', array(
-      'title' => 'Auth Callback',
-      'error' => 'Invalid "me" Parameter',
-      'errorDescription' => 'The ID you entered, <strong>' . $params['me'] . '</strong> is not valid.'
-    ));
-    return;
-  }
-
   // If there is no state in the session, start the login again
   if(!array_key_exists('auth_state', $_SESSION)) {
-    $app->redirect('/auth/start?me='.urlencode($params['me']));
+    render('auth_error', array(
+      'title' => 'Auth Callback',
+      'error' => 'Missing session state',
+      'errorDescription' => 'Something went wrong, please try signing in again, and make sure cookies are enabled for this domain.'
+    ));
     return;
   }
 
@@ -207,7 +205,7 @@ $app->get('/auth/callback', function() use($app) {
     render('auth_error', array(
       'title' => 'Auth Callback',
       'error' => 'Missing state parameter',
-      'errorDescription' => 'No state parameter was provided in the request. This shouldn\'t happen. It is possible this is a malicious authorization attempt.'
+      'errorDescription' => 'No state parameter was provided in the request. This shouldn\'t happen. It is possible this is a malicious authorization attempt, or your authorization server failed to pass back the "state" parameter.'
     ));
     return;
   }
@@ -221,26 +219,49 @@ $app->get('/auth/callback', function() use($app) {
     return;
   }
 
+  if(!isset($_SESSION['attempted_me'])) {
+    render('auth_error', [
+      'title' => 'Auth Callback',
+      'error' => 'Missing data',
+      'errorDescription' => 'We forgot who was logging in. It\'s possible you took too long to finish signing in, or something got mixed up by signing in in another tab.'
+    ]);
+    return;
+  }
+  $me = $_SESSION['attempted_me'];
+
   $pebble = k($_SESSION, 'pebble');
 
   // Now the basic sanity checks have passed. Time to start providing more helpful messages when there is an error.
   // An authorization code is in the query string, and we want to exchange that for an access token at the token endpoint.
 
-  // Discover the endpoints
-  $authorizationEndpoint = IndieAuth\Client::discoverAuthorizationEndpoint($me);
-  $micropubEndpoint = IndieAuth\Client::discoverMicropubEndpoint($me);
-  $tokenEndpoint = IndieAuth\Client::discoverTokenEndpoint($me);
+  $authorizationEndpoint = isset($_SESSION['authorization_endpoint']) ? $_SESSION['authorization_endpoint'] : false;
+  $tokenEndpoint = isset($_SESSION['token_endpoint']) ? $_SESSION['token_endpoint'] : false;
+  $micropubEndpoint = isset($_SESSION['micropub_endpoint']) ? $_SESSION['micropub_endpoint'] : false;
+
+  unset($_SESSION['authorization_endpoint']);
+  unset($_SESSION['token_endpoint']);
+  unset($_SESSION['micropub_endpoint']);
 
   $skipDebugScreen = false;
 
   if($tokenEndpoint) {
     // Exchange auth code for an access token
-    $token = IndieAuth\Client::getAccessToken($tokenEndpoint, $params['code'], $params['me'], buildRedirectURI(), clientID($pebble), $params['state'], true);
+    $token = IndieAuth\Client::getAccessToken($tokenEndpoint, $params['code'], $me, buildRedirectURI(), clientID($pebble), true);
 
     // If a valid access token was returned, store the token info in the session and they are signed in
     if(k($token['auth'], array('me','access_token','scope'))) {
+      // Double check that the domain of the returned "me" matches the expected
+      if(parse_url($token['auth']['me'], PHP_URL_HOST) != parse_url($me, PHP_URL_HOST)) {
+        render('auth_error', [
+          'title' => 'Error Signing In',
+          'error' => 'Invalid user',
+          'errorDescription' => 'The user URL that was returned in the access token did not match the domain of the user signing in.'
+        ]);
+        return;
+      }
+
       $_SESSION['auth'] = $token['auth'];
-      $_SESSION['me'] = $params['me'];
+      $_SESSION['me'] = $token['auth']['me'];
     }
 
   } else {
@@ -253,7 +274,7 @@ $app->get('/auth/callback', function() use($app) {
       $authorizationEndpoint = 'https://indieauth.com/auth';
     }
 
-    $token['auth'] = IndieAuth\Client::verifyIndieAuthCode($authorizationEndpoint, $params['code'], $params['me'], buildRedirectURI(), clientID($pebble), $params['state']);
+    $token['auth'] = IndieAuth\Client::verifyIndieAuthCode($authorizationEndpoint, $params['code'], $me, buildRedirectURI(), clientID($pebble));
 
     if(k($token['auth'], 'me')) {
       $token['response'] = ''; // hack becuase the verify call doesn't actually return the real response

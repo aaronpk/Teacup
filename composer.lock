@@ -4,8 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "ebaa6e4aed4c7cfa5a835cbe2b92e629",
-    "content-hash": "4b3b194b582b716faa00f4da8ce8859b",
+    "content-hash": "1d07c0c44cd10b3a4bc578895e82c03e",
     "packages": [
         {
             "name": "barnabywalters/mf-cleaner",
@@ -45,7 +44,7 @@
                 }
             ],
             "description": "Cleans up microformats2 array structures",
-            "time": "2014-10-06 23:11:15"
+            "time": "2014-10-06T23:11:15+00:00"
         },
         {
             "name": "firebase/php-jwt",
@@ -88,27 +87,30 @@
             ],
             "description": "A simple library to encode and decode JSON Web Tokens (JWT) in PHP. Should conform to the current spec.",
             "homepage": "https://github.com/firebase/php-jwt",
-            "time": "2016-07-18 04:51:16"
+            "time": "2016-07-18T04:51:16+00:00"
         },
         {
             "name": "indieauth/client",
-            "version": "0.1.13",
+            "version": "0.2.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/indieweb/indieauth-client-php.git",
-                "reference": "d438bb03db15b4ccc6c63228be16de7870b6ab99"
+                "reference": "2a7f8186085d06f0371a0199e103e10729782aea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/indieweb/indieauth-client-php/zipball/d438bb03db15b4ccc6c63228be16de7870b6ab99",
-                "reference": "d438bb03db15b4ccc6c63228be16de7870b6ab99",
+                "url": "https://api.github.com/repos/indieweb/indieauth-client-php/zipball/2a7f8186085d06f0371a0199e103e10729782aea",
+                "reference": "2a7f8186085d06f0371a0199e103e10729782aea",
                 "shasum": ""
             },
             "require": {
                 "barnabywalters/mf-cleaner": "0.*",
-                "indieweb/link-rel-parser": "0.1.1",
-                "mf2/mf2": "0.2.*",
+                "indieweb/link-rel-parser": "0.1.*",
+                "mf2/mf2": "~0.3",
                 "php": ">5.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "4.8.*"
             },
             "type": "library",
             "autoload": {
@@ -127,7 +129,7 @@
                 }
             ],
             "description": "IndieAuth Client Library",
-            "time": "2016-02-08 23:56:31"
+            "time": "2017-11-23T17:22:16+00:00"
         },
         {
             "name": "indieweb/date-formatter",
@@ -170,7 +172,7 @@
                 "microformats",
                 "microformats2"
             ],
-            "time": "2015-10-28 00:32:39"
+            "time": "2015-10-28T00:32:39+00:00"
         },
         {
             "name": "indieweb/link-rel-parser",
@@ -216,7 +218,7 @@
                 "indieweb",
                 "microformats2"
             ],
-            "time": "2013-12-23 00:14:58"
+            "time": "2013-12-23T00:14:58+00:00"
         },
         {
             "name": "j4mie/idiorm",
@@ -274,27 +276,29 @@
                 "orm",
                 "query builder"
             ],
-            "time": "2013-12-12 10:25:27"
+            "time": "2013-12-12T10:25:27+00:00"
         },
         {
             "name": "mf2/mf2",
-            "version": "v0.2.12",
+            "version": "v0.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/indieweb/php-mf2.git",
-                "reference": "6701504876d6c9242eb310b35f41d40d9785ab4e"
+                "reference": "dc0d90d4ee30864bcf37cd3a8fc8db94f9134cc4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/indieweb/php-mf2/zipball/6701504876d6c9242eb310b35f41d40d9785ab4e",
-                "reference": "6701504876d6c9242eb310b35f41d40d9785ab4e",
+                "url": "https://api.github.com/repos/indieweb/php-mf2/zipball/dc0d90d4ee30864bcf37cd3a8fc8db94f9134cc4",
+                "reference": "dc0d90d4ee30864bcf37cd3a8fc8db94f9134cc4",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.0"
+                "php": ">=5.4.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "3.7.*"
+                "mf2/tests": "@dev",
+                "phpdocumentor/phpdocumentor": "v2.8.4",
+                "phpunit/phpunit": "4.8.*"
             },
             "suggest": {
                 "barnabywalters/mf-cleaner": "To more easily handle the canonical data php-mf2 gives you"
@@ -311,7 +315,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "MIT"
+                "CC0"
             ],
             "authors": [
                 {
@@ -327,7 +331,7 @@
                 "parser",
                 "semantic"
             ],
-            "time": "2015-07-12 14:10:01"
+            "time": "2017-05-27T15:27:47+00:00"
         },
         {
             "name": "minicodemonkey/amazon-alexa-php",
@@ -366,7 +370,7 @@
                 }
             ],
             "description": "Amazon Alexa interface for PHP",
-            "time": "2015-11-29 21:50:59"
+            "time": "2015-11-29T21:50:59+00:00"
         },
         {
             "name": "mpratt/relativetime",
@@ -414,7 +418,7 @@
                 "time",
                 "time-ago"
             ],
-            "time": "2015-12-24 12:43:04"
+            "time": "2015-12-24T12:43:04+00:00"
         },
         {
             "name": "p3k/multipart",
@@ -450,7 +454,7 @@
                 }
             ],
             "description": "Multipart Encoding Library",
-            "time": "2015-07-16 19:28:02"
+            "time": "2015-07-16T19:28:02+00:00"
         },
         {
             "name": "saltybeagle/savant3",
@@ -485,7 +489,7 @@
                 }
             ],
             "description": "Savant3 template engine",
-            "time": "2014-01-07 17:10:32"
+            "time": "2014-01-07T17:10:32+00:00"
         },
         {
             "name": "slim/slim",
@@ -528,7 +532,7 @@
                 "rest",
                 "router"
             ],
-            "time": "2012-12-13 02:15:50"
+            "time": "2012-12-13T02:15:50+00:00"
         }
     ],
     "packages-dev": [],

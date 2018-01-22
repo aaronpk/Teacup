@@ -60,7 +60,7 @@
   <?php endif; ?>
 
   <?php if(!property_exists($this, 'footer') || $this->footer !== false): ?>
-    <?= partial('partials/footer') ?>
+    <?= partial('partials/footer', $this) ?>
   <?php endif; ?>
 
 </div>
