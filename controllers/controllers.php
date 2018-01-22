@@ -366,15 +366,6 @@ $app->get('/map.png', function() use($app) {
   $app->response()->body($img);
 });
 
-/*
-$app->get('/teacup.appcache', function() use($app) {
-  $content = partial('appcache');
-
-  $app->response()['Content-type'] = 'text/cache-manifest';
-  $app->response()->body($content);
-});
-*/
-
 $app->get('/:domain', function($domain) use($app) {
   $params = $app->request()->params();
 

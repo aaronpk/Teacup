@@ -296,16 +296,6 @@ $(function(){
     }
   });
 
-  function onUpdateReady() {
-    // Show the notice that says there is a new version of the app
-    $("#new_version_available").show();
-  }
-
-  window.applicationCache.addEventListener('updateready', onUpdateReady);
-  if(window.applicationCache.status === window.applicationCache.UPDATEREADY) {
-    onUpdateReady();
-  }
-
 });
 
 </script>

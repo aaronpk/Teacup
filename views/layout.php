@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"<?= property_exists($this, 'enable_appcache') ? ' manifest="teacup.appcache"' : '' ?>>
+<html lang="en">
   <head>
     <title><?= $this->title ?></title>
     <meta charset="utf-8">
@@ -63,12 +63,6 @@
     <?= partial('partials/footer') ?>
   <?php endif; ?>
 
-</div>
-
-<div id="new_version_available">
-  <div class="inner">
-    There is a new version available! Refresh to load the new version.
-  </div>
 </div>
 
 </body>
