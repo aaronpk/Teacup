@@ -105,7 +105,7 @@ $(function(){
 
   function tz_seconds_to_offset(seconds) {
     var tz_offset = '';
-    var hours = zero_pad(Math.abs(seconds / 60 / 60));
+    var hours = zero_pad(Math.floor(Math.abs(seconds / 60 / 60)));
     var minutes = zero_pad(Math.floor(seconds / 60) % 60);
     return (seconds < 0 ? '-' : '+') + hours + ":" + minutes;
   }
