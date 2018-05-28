@@ -100,13 +100,12 @@ function micropub_post($endpoint, $params, $access_token) {
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $endpoint);
   curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-    'Authorization: Bearer ' . $access_token
+    'Authorization: Bearer ' . $access_token,
+    'Content-Type: application/json',
+    'Accept: application/json'
   ));
   curl_setopt($ch, CURLOPT_POST, true);
-  $post = http_build_query(array_merge(array(
-    'access_token' => $access_token,
-    'h' => 'entry'
-  ), $params));
+  $post = json_encode($params);
   curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
   curl_setopt($ch, CURLOPT_HEADER, true);

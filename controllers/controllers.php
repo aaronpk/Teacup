@@ -249,28 +249,29 @@ $app->post('/post', function() use($app) {
     if($user->micropub_endpoint) {
       $text_content = 'Just ' . $verb . ': ' . $entry->content;
 
-      $mp_request = array(
-        'h' => 'entry',
-        'published' => $published,
-        'created' => $published,
-        'location' => k($params, 'location'),
-        'summary' => $text_content
+      $mp_properties = array(
+        'published' => [$published],
+        'created' => [$published],
+        'summary' => [$text_content]
       );
+      $location = k($params, 'location');
+      if($location) {
+        $mp_properties['location'] = [$location];
+      }
       if($entry->photo_url) {
-        $mp_request['photo'] = $entry->photo_url;
+        $mp_properties['photo'] = [$entry->photo_url];
       }
-      if($user->enable_array_micropub) {
-        $mp_request[$verb] = [
-          'type' => 'h-food',
-          'properties' => [
-            'name' => $entry->content
-          ]
-        ];
-      } else {
-        $mp_request['p3k-food'] = $entry->content;
-        $mp_request['p3k-type'] = $type;
-      }
+      $mp_properties[$verb] = [[
+        'type' => ['h-food'],
+        'properties' => [
+          'name' => $entry->content
+        ]
+      ]];
 
+      $mp_request = array(
+        'type' => ['h-entry'],
+        'properties' => $mp_properties
+      );
       $r = micropub_post($user->micropub_endpoint, $mp_request, $user->access_token);
       $request = $r['request'];
       $response = $r['response'];
