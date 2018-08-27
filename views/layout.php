@@ -26,6 +26,8 @@
     <link rel="apple-touch-icon" sizes="114x114" href="/images/teacup-icon-114.png">
     <link rel="apple-touch-icon" sizes="144x144" href="/images/teacup-icon-144.png">
 
+    <link rel="manifest" href="/manifest.json">
+
     <link rel="icon" href="/images/teacup-16px.png" type="image/png">
 
     <script src="/js/jquery-1.7.1.min.js"></script>

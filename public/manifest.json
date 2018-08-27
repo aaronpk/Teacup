@@ -1,0 +1,19 @@
+{
+  "name": "Teacup",
+  "short_name": "Teacup",
+  "icons": [
+    {
+      "src": "/images/teacup-icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/teacup-icon-57.png",
+      "sizes": "57x57",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff",
+  "display": "standalone"
+}
