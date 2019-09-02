@@ -57,15 +57,15 @@
           <table class="table table-condensed">
             <tr>
               <td>me</td>
-              <td class="break"><code><?= session('me') ?></code> (should be your URL)</td>
+              <td class="break"><code><?= session('me') ?></code> (should be your website)</td>
             </tr>
             <tr>
               <td>scope</td>
-              <td class="break"><code><?= $this->token_scope ?></code> (should be a space-separated list of permissions including "post")</td>
+              <td class="break"><code><?= $this->token_scope ?></code></td>
             </tr>
             <tr>
               <td>micropub endpoint</td>
-              <td class="break"><code><?= $this->micropub_endpoint ?></code> (should be a URL)</td>
+              <td class="break"><code><?= $this->micropub_endpoint ?></code></td>
             </tr>
             <tr>
               <td>access token</td>
@@ -75,8 +75,8 @@
               <tr>
                 <td>ate or drank</td>
                 <td class="break">
-                  <p>The parameter named <code>ate</code> or <code>drank</code> will include an <code>h-food</code> object corresponding to the item you tapped.</p>
-                  <pre>ate[type]=h-food&amp;ate[properties][name]=Coffee</pre>
+                  <p>A property named <code>ate</code> or <code>drank</code> will include an <code>h-food</code> object corresponding to the item you tapped.</p>
+                  <pre>{"ate":[{"type":["h-food"],"name":["Coffee"]}]}</pre>
                 </td>
               </tr>
             <?php else: ?>
@@ -119,7 +119,7 @@ $(function(){
 
   function replacePhotoWithPhotoURL(url) {
     $("#note_photo").val(url);
-    $("#note_photo_upload").addClass("hidden");  
+    $("#note_photo_upload").addClass("hidden");
     $("#note_photo_loading").addClass("hidden");
     $("#photo_preview").attr("src", url);
     $("#photo_preview_container").removeClass("hidden");
