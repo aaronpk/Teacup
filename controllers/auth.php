@@ -21,42 +21,6 @@ function build_url($parsed_url) {
   return "$scheme$user$pass$host$port$path$query$fragment";
 }
 
-// Input: Any URL or string like "aaronparecki.com"
-// Output: Normlized URL (default to http if no scheme, force "/" path)
-//         or return false if not a valid URL (has query string params, etc)
-function normalizeMeURL($url) {
-  $me = parse_url($url);
-
-  if(array_key_exists('path', $me) && $me['path'] == '')
-    return false;
-
-  // parse_url returns just "path" for naked domains
-  if(count($me) == 1 && array_key_exists('path', $me)) {
-    $me['host'] = $me['path'];
-    unset($me['path']);
-  }
-
-  if(!array_key_exists('scheme', $me))
-    $me['scheme'] = 'http';
-
-  if(!array_key_exists('path', $me))
-    $me['path'] = '/';
-
-  // Invalid scheme
-  if(!in_array($me['scheme'], array('http','https')))
-    return false;
-
-  // Invalid path
-  // if($me['path'] != '/')
-  //   return false;
-
-  // query and fragment not allowed
-  if(array_key_exists('query', $me) || array_key_exists('fragment', $me))
-    return false;
-
-  return build_url($me);
-}
-
 function hostname($url) {
   return parse_url($url, PHP_URL_HOST);
 }
@@ -89,7 +53,7 @@ $app->get('/auth/start', function() use($app) {
   // the "me" parameter is user input, and may be in a couple of different forms:
   // aaronparecki.com http://aaronparecki.com http://aaronparecki.com/
   // Normlize the value now (move this into a function in IndieAuth\Client later)
-  if(!array_key_exists('me', $params) || !($me = normalizeMeURL($params['me']))) {
+  if(!array_key_exists('me', $params) || !($me = IndieAuth\Client::normalizeMeURL($params['me']))) {
     render('auth_error', array(
       'title' => 'Sign In',
       'error' => 'Invalid "me" Parameter',
@@ -113,12 +77,23 @@ $app->get('/auth/start', function() use($app) {
 
   if($tokenEndpoint && $micropubEndpoint && $authorizationEndpoint) {
     $scope = 'create';
-    $authorizationURL = IndieAuth\Client::buildAuthorizationURL($authorizationEndpoint, $me, buildRedirectURI(), clientID(), $state, $scope);
+    $authorizationURL = IndieAuth\Client::buildAuthorizationURL($authorizationEndpoint, [
+      'me' => $me,
+      'redirect_uri' => buildRedirectURI(),
+      'client_id' => clientID(),
+      'state' => $state,
+      'scope' => $scope
+    ]);
     $_SESSION['authorization_endpoint'] = $authorizationEndpoint;
     $_SESSION['micropub_endpoint'] = $micropubEndpoint;
     $_SESSION['token_endpoint'] = $tokenEndpoint;
   } else {
-    $authorizationURL = IndieAuth\Client::buildAuthorizationURL('https://indieauth.com/auth', $me, buildRedirectURI(), clientID(), $state);
+    $authorizationURL = IndieAuth\Client::buildAuthorizationURL('https://indielogin.com/auth', [
+      'me' => $me,
+      'redirect_uri' => buildRedirectURI(),
+      'client_id' => clientID(),
+      'state' => $state
+    ]);
   }
 
   // If the user has already signed in before and has a micropub access token, skip
@@ -217,7 +192,7 @@ $app->get('/auth/callback', function() use($app) {
   }
   $me = $_SESSION['attempted_me'];
 
-  // Now the basic sanity checks have passed. Time to start providing more helpful messages when there is an error.
+  // Now the basic checks have passed. Time to start providing more helpful messages when there is an error.
   // An authorization code is in the query string, and we want to exchange that for an access token at the token endpoint.
 
   $authorizationEndpoint = isset($_SESSION['authorization_endpoint']) ? $_SESSION['authorization_endpoint'] : false;
@@ -232,22 +207,30 @@ $app->get('/auth/callback', function() use($app) {
 
   if($tokenEndpoint) {
     // Exchange auth code for an access token
-    $token = IndieAuth\Client::getAccessToken($tokenEndpoint, $params['code'], $me, buildRedirectURI(), clientID(), true);
+    $token = IndieAuth\Client::exchangeAuthorizationCode($tokenEndpoint, [
+      'code' => $params['code'],
+      'redirect_uri' => buildRedirectURI(),
+      'client_id' => clientID()
+    ]);
 
     // If a valid access token was returned, store the token info in the session and they are signed in
-    if(k($token['auth'], array('me','access_token','scope'))) {
-      // Double check that the domain of the returned "me" matches the expected
-      if(parse_url($token['auth']['me'], PHP_URL_HOST) != parse_url($me, PHP_URL_HOST)) {
-        render('auth_error', [
-          'title' => 'Error Signing In',
-          'error' => 'Invalid user',
-          'errorDescription' => 'The user URL that was returned in the access token did not match the domain of the user signing in.'
-        ]);
-        return;
+    if(k($token['response'], array('me','access_token','scope'))) {
+
+      // Verify the authorization endpoint matches
+      if($token['response']['me'] != $me) {
+        $newAuthorizationEndpoint = IndieAuth\Client::discoverAuthorizationEndpoint($data['response']['me']);
+        if($newAuthorizationEndpoint != $authorizationEndpoint) {
+          render('auth_error', [
+            'title' => 'Error Signing In',
+            'error' => 'Invalid authorization endpoint',
+            'errorDescription' => 'The authorization endpoint for the returned profile URL did not match the authorization endpoint used to begin the login.'
+          ]);
+          return;
+        }
       }
 
-      $_SESSION['auth'] = $token['auth'];
-      $_SESSION['me'] = $token['auth']['me'];
+      $_SESSION['auth'] = $token['response'];
+      $_SESSION['me'] = $me = $token['response']['me'];
     }
 
   } else {
@@ -257,22 +240,23 @@ $app->get('/auth/callback', function() use($app) {
     $skipDebugScreen = true;
 
     if(!$authorizationEndpoint) {
-      $authorizationEndpoint = 'https://indieauth.com/auth';
+      $authorizationEndpoint = 'https://indielogin.com/auth';
     }
 
-    $token['auth'] = IndieAuth\Client::verifyIndieAuthCode($authorizationEndpoint, $params['code'], $me, buildRedirectURI(), clientID());
+    $token = IndieAuth\Client::exchangeAuthorizationCode($authorizationEndpoint, [
+      'code' => $params['code'],
+      'redirect_uri' => buildRedirectURI(),
+      'client_id' => clientID()
+    ]);
 
-    if(k($token['auth'], 'me')) {
-      $token['response'] = ''; // hack becuase the verify call doesn't actually return the real response
-      $token['auth']['scope'] = '';
-      $token['auth']['access_token'] = '';
-      $_SESSION['auth'] = $token['auth'];
-      $_SESSION['me'] = $params['me'];
+    if(k($token['response'], 'me')) {
+      $_SESSION['auth'] = $token['response'];
+      $_SESSION['me'] = $me = $token['response']['me'];
     }
   }
 
   // Verify the login actually succeeded
-  if(!k($token['auth'], 'me')) {
+  if(!k($token['response'], 'me')) {
     render('auth_error', array(
       'title' => 'Sign-In Failed',
       'error' => 'Unable to verify the sign-in attempt',
