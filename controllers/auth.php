@@ -4,26 +4,22 @@ function buildRedirectURI() {
   return Config::$base_url . 'auth/callback';
 }
 
-function clientID($pebble=false) {
-  if($pebble) {
-    return Config::$base_url . 'pebble';
-  } else {
-    return trim(Config::$base_url, '/'); // remove trailing slash from client_id
-  }
+function clientID() {
+  return Config::$base_url;
 }
 
-function build_url($parsed_url) { 
-  $scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : ''; 
-  $host     = isset($parsed_url['host']) ? $parsed_url['host'] : ''; 
-  $port     = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : ''; 
-  $user     = isset($parsed_url['user']) ? $parsed_url['user'] : ''; 
-  $pass     = isset($parsed_url['pass']) ? ':' . $parsed_url['pass']  : ''; 
-  $pass     = ($user || $pass) ? "$pass@" : ''; 
-  $path     = isset($parsed_url['path']) ? $parsed_url['path'] : ''; 
-  $query    = isset($parsed_url['query']) ? '?' . $parsed_url['query'] : ''; 
-  $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : ''; 
-  return "$scheme$user$pass$host$port$path$query$fragment"; 
-} 
+function build_url($parsed_url) {
+  $scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
+  $host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';
+  $port     = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
+  $user     = isset($parsed_url['user']) ? $parsed_url['user'] : '';
+  $pass     = isset($parsed_url['pass']) ? ':' . $parsed_url['pass']  : '';
+  $pass     = ($user || $pass) ? "$pass@" : '';
+  $path     = isset($parsed_url['path']) ? $parsed_url['path'] : '';
+  $query    = isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
+  $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
+  return "$scheme$user$pass$host$port$path$query$fragment";
+}
 
 // Input: Any URL or string like "aaronparecki.com"
 // Output: Normlized URL (default to http if no scheme, force "/" path)
@@ -72,7 +68,7 @@ function add_hcard_info($user, $hCard) {
       $user->name = BarnabyWalters\Mf2\getPlaintext($hCard, 'name');
     if(BarnabyWalters\Mf2\hasProp($hCard, 'photo'))
       $user->photo_url = BarnabyWalters\Mf2\getPlaintext($hCard, 'photo');
-  }  
+  }
 }
 
 $app->get('/', function($format='html') use($app) {
@@ -89,7 +85,7 @@ $app->get('/auth/start', function() use($app) {
   $req = $app->request();
 
   $params = $req->params();
-  
+
   // the "me" parameter is user input, and may be in a couple of different forms:
   // aaronparecki.com http://aaronparecki.com http://aaronparecki.com/
   // Normlize the value now (move this into a function in IndieAuth\Client later)
@@ -112,28 +108,20 @@ $app->get('/auth/start', function() use($app) {
   // Generate a "state" parameter for the request
   $state = IndieAuth\Client::generateStateParameter();
   $_SESSION['auth_state'] = $state;
-  
-  // Store whether to return to the Pebble settings tab or the new post page after signing in
-  if(array_key_exists('redirect', $params) && $params['redirect'] == 'settings') {
-    $_SESSION['redirect_after_login'] = '/pebble/settings/finished';
-  } else {
-    $_SESSION['redirect_after_login'] = '/new';
-  }
 
-  $pebble = k($params, 'pebble');
-  $_SESSION['pebble'] = $pebble;
+  $_SESSION['redirect_after_login'] = '/new';
 
   if($tokenEndpoint && $micropubEndpoint && $authorizationEndpoint) {
     $scope = 'create';
-    $authorizationURL = IndieAuth\Client::buildAuthorizationURL($authorizationEndpoint, $me, buildRedirectURI(), clientID($pebble), $state, $scope);
+    $authorizationURL = IndieAuth\Client::buildAuthorizationURL($authorizationEndpoint, $me, buildRedirectURI(), clientID(), $state, $scope);
     $_SESSION['authorization_endpoint'] = $authorizationEndpoint;
     $_SESSION['micropub_endpoint'] = $micropubEndpoint;
     $_SESSION['token_endpoint'] = $tokenEndpoint;
   } else {
-    $authorizationURL = IndieAuth\Client::buildAuthorizationURL('https://indieauth.com/auth', $me, buildRedirectURI(), clientID($pebble), $state);
+    $authorizationURL = IndieAuth\Client::buildAuthorizationURL('https://indieauth.com/auth', $me, buildRedirectURI(), clientID(), $state);
   }
 
-  // If the user has already signed in before and has a micropub access token, skip 
+  // If the user has already signed in before and has a micropub access token, skip
   // the debugging screens and redirect immediately to the auth endpoint.
   // This will still generate a new access token when they finish logging in.
   $user = ORM::for_table('users')->where('url', hostname($me))->find_one();
@@ -229,8 +217,6 @@ $app->get('/auth/callback', function() use($app) {
   }
   $me = $_SESSION['attempted_me'];
 
-  $pebble = k($_SESSION, 'pebble');
-
   // Now the basic sanity checks have passed. Time to start providing more helpful messages when there is an error.
   // An authorization code is in the query string, and we want to exchange that for an access token at the token endpoint.
 
@@ -246,7 +232,7 @@ $app->get('/auth/callback', function() use($app) {
 
   if($tokenEndpoint) {
     // Exchange auth code for an access token
-    $token = IndieAuth\Client::getAccessToken($tokenEndpoint, $params['code'], $me, buildRedirectURI(), clientID($pebble), true);
+    $token = IndieAuth\Client::getAccessToken($tokenEndpoint, $params['code'], $me, buildRedirectURI(), clientID(), true);
 
     // If a valid access token was returned, store the token info in the session and they are signed in
     if(k($token['auth'], array('me','access_token','scope'))) {
@@ -274,7 +260,7 @@ $app->get('/auth/callback', function() use($app) {
       $authorizationEndpoint = 'https://indieauth.com/auth';
     }
 
-    $token['auth'] = IndieAuth\Client::verifyIndieAuthCode($authorizationEndpoint, $params['code'], $me, buildRedirectURI(), clientID($pebble));
+    $token['auth'] = IndieAuth\Client::verifyIndieAuthCode($authorizationEndpoint, $params['code'], $me, buildRedirectURI(), clientID());
 
     if(k($token['auth'], 'me')) {
       $token['response'] = ''; // hack becuase the verify call doesn't actually return the real response

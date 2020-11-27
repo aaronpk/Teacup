@@ -200,7 +200,6 @@ $app->post('/post', function() use($app) {
       $entry->tz_offset = tz_offset_to_seconds($params['note_tzoffset']);
       $published = $date_string;
     } else {
-      // Pebble doesn't send the date/time/timezone
       $entry->published = date('Y-m-d H:i:s');
       $published = date('c'); // for the micropub post
       if($location && ($timezone=get_timezone($location['latitude'], $location['longitude']))) {
