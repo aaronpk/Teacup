@@ -218,7 +218,7 @@ $app->get('/auth/callback', function() use($app) {
 
       // Verify the authorization endpoint matches
       if($token['response']['me'] != $me) {
-        $newAuthorizationEndpoint = IndieAuth\Client::discoverAuthorizationEndpoint($data['response']['me']);
+        $newAuthorizationEndpoint = IndieAuth\Client::discoverAuthorizationEndpoint($token['response']['me']);
         if($newAuthorizationEndpoint != $authorizationEndpoint) {
           render('auth_error', [
             'title' => 'Error Signing In',
@@ -265,7 +265,6 @@ $app->get('/auth/callback', function() use($app) {
     return;
   }
 
-
   $user = ORM::for_table('users')->where('url', hostname($me))->find_one();
   if($user) {
     // Already logged in, update the last login date
@@ -281,9 +280,9 @@ $app->get('/auth/callback', function() use($app) {
     $user->last_login = date('Y-m-d H:i:s');
   }
   $user->micropub_endpoint = $micropubEndpoint;
-  $user->access_token = $token['auth']['access_token'];
-  $user->token_scope = $token['auth']['scope'];
-  $user->token_response = $token['response'];
+  $user->access_token = $token['response']['access_token'];
+  $user->token_scope = $token['response']['scope'];
+  $user->token_response = $token['raw_response'];
   $user->save();
   $_SESSION['user_id'] = $user->id();
 
