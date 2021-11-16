@@ -76,7 +76,7 @@ $app->get('/auth/start', function() use($app) {
   $_SESSION['redirect_after_login'] = '/new';
 
   if($tokenEndpoint && $micropubEndpoint && $authorizationEndpoint) {
-    $scope = 'create';
+    $scope = 'create media';
     $authorizationURL = IndieAuth\Client::buildAuthorizationURL($authorizationEndpoint, [
       'me' => $me,
       'redirect_uri' => buildRedirectURI(),
