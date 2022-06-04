@@ -357,6 +357,7 @@ $app->get('/options.json', function() use($app) {
 $app->get('/map.png', function() use($app) {
   $params = $app->request()->params();
   $params['basemap'] = 'custom';
+  $params['attribution'] = 'mapbox';
   $params['tileurl'] = Config::$mapTileURL;
   $params['token'] = Config::$atlasToken;
 
