@@ -355,9 +355,14 @@ $app->get('/options.json', function() use($app) {
 });
 
 $app->get('/map.png', function() use($app) {
-  $url = static_map_service($_SERVER['QUERY_STRING']);
-  $ch = curl_init($url);
+  $params = $app->request()->params();
+  $params['basemap'] = 'custom';
+  $params['tileurl'] = Config::$mapTileURL;
+  $params['token'] = Config::$atlasToken;
+
+  $ch = curl_init('https://atlas.p3k.io/map/img');
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
   $img = curl_exec($ch);
   header('Expires: ' . gmdate('D, d M Y H:i:s', strtotime('+30 days')) . ' GMT');
   header('Pragma: cache');

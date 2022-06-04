@@ -13,6 +13,9 @@ class Config {
 
   public static $mf2Debug = false;
 
+  public static $atlasToken = '';
+  public static $mapTileURL = '';
+
   public static $alexaClientID = '';
   public static $alexaClientSecret = '';
   public static $alexaRedirectURIs = [

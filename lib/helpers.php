@@ -196,11 +196,7 @@ function get_micropub_config(&$user) {
 }
 
 function build_static_map_url($latitude, $longitude, $height, $width, $zoom) {
-  return '/map.png?marker[]=lat:' . $latitude . ';lng:' . $longitude . ';icon:small-green-cutout&basemap=topo&width=' . $width . '&height=' . $height . '&zoom=' . $zoom;
-}
-
-function static_map_service($query) {
-  return 'https://atlas.p3k.io/map/img?' . $query;
+  return '/map.png?marker[]=lat:' . $latitude . ';lng:' . $longitude . ';icon:small-green-cutout&width=' . $width . '&height=' . $height . '&zoom=' . $zoom;
 }
 
 function relative_time($date) {
