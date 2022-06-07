@@ -188,9 +188,14 @@ $app->post('/post', function() use($app) {
     $entry->user_id = $user->id;
 
     $location = false;
-    if(k($params, 'location') && $location=parse_geo_uri($params['location'])) {
-      $entry->latitude = $location['latitude'];
-      $entry->longitude = $location['longitude'];
+    
+    if(k($params, 'venue_url')) {
+      $entry->checkin_url = $params['venue_url'];
+    } else {
+      if(k($params, 'location') && $location=parse_geo_uri($params['location'])) {
+        $entry->latitude = $location['latitude'];
+        $entry->longitude = $location['longitude'];
+      }
     }
 
     if(k($params,'note_date')) {
@@ -253,8 +258,10 @@ $app->post('/post', function() use($app) {
         'created' => [$published],
         'summary' => [$text_content]
       );
-      $location = k($params, 'location');
-      if($location) {
+      
+      if($venue = k($params, 'venue_url')) {
+        $mp_properties['location'] = [$venue];
+      } elseif($location = k($params, 'location')) {
         $mp_properties['location'] = [$location];
       }
       if($entry->photo_url) {
@@ -337,6 +344,14 @@ $app->get('/micropub/config', function() use($app) {
     $config = get_micropub_config($user);
     $app->response()['Content-type'] = 'application/json';
     $app->response()->body(json_encode($config));
+  }
+});
+
+$app->get('/micropub/last-checkin', function() use($app){
+  if($user=require_login($app)) {
+    $checkin = get_micropub_checkin($user);
+    $app->response()['Content-type'] = 'application/json';
+    $app->response()->body(json_encode($checkin));
   }
 });
 

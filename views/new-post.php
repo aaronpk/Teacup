@@ -33,17 +33,26 @@
 
         <div id="entry-buttons">
         </div>
-
+        
         <div class="form-group">
           <h3>Location <input type="checkbox" id="note_location_chk" value=""><img src="/images/spinner.gif" id="note_location_loading" style="display: none;"></h3>
 
-          <input type="text" id="note_location_msg" value="" class="form-control" placeholder="" readonly="readonly">
-          <input type="hidden" id="note_location" name="location">
-          <input type="hidden" id="location_enabled" value="<?= $this->location_enabled ?>">
+          <div class="hidden" id="note_venue">
+            <input type="url" id="note_venue_url" name="venue_url" class="hidden">
+            <ul class="entry-buttons">
+              <li><input type="button" class="btn btn-default name"></li>
+            </ul>
+          </div>
 
-          <div id="note_location_img" style="display: none;">
-            <img src="" height="180" id="note_location_img_wide" class="img-responsive">
-            <img src="" height="320" id="note_location_img_small" class="img-responsive">
+          <div id="note_location_fields">
+            <input type="text" id="note_location_msg" value="" class="form-control" placeholder="" readonly="readonly">
+            <input type="hidden" id="note_location" name="location">
+            <input type="hidden" id="location_enabled" value="<?= $this->location_enabled ?>">
+  
+            <div id="note_location_img" style="display: none;">
+              <img src="" height="180" id="note_location_img_wide" class="img-responsive">
+              <img src="" height="320" id="note_location_img_small" class="img-responsive">
+            </div>
           </div>
         </div>
 
@@ -296,6 +305,41 @@ $(function(){
     }
   });
 
+  var last_checkin = false;
+
+  function fetch_last_checkin() {
+    $.get("/micropub/last-checkin", function(data){
+      if(data.url) {
+        $("#note_venue").removeClass("hidden");
+        $("#note_venue .name").val(data.name);
+        last_checkin = data;
+        bind_venue_buttons();
+      }
+    });
+  }
+
+  function bind_venue_buttons() {
+    $("#note_venue .entry-buttons li input").click(function(){
+      if($(this).hasClass("btn-primary")) {
+        // Disable venue tag
+        $(this).addClass("btn-default").removeClass("btn-primary");
+        $("#note_venue_url").val("");
+        fetch_location();
+      } else {
+        // Enable venue tag
+        $(this).addClass("btn-primary").removeClass("btn-default");
+        $("#note_venue_url").val(last_checkin.url);
+        $("#note_location_msg").val(last_checkin.url);
+        $("#note_location_img_small").attr("src", "");
+        $("#note_location_img_wide").attr("src", "");
+        $("#note_location_img_small").attr("src", map_template_small.replace('{lat}', last_checkin.lat).replace('{lng}', last_checkin.lng));
+        $("#note_location_img_wide").attr("src", map_template_wide.replace('{lat}', last_checkin.lat).replace('{lng}', last_checkin.lng));
+      }
+    });
+  }
+
+  fetch_last_checkin();
+  
 });
 
 </script>

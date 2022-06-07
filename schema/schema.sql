@@ -29,6 +29,7 @@ CREATE TABLE `entries` (
   `tz_offset` int(11) DEFAULT NULL,
   `latitude` double DEFAULT NULL,
   `longitude` double DEFAULT NULL,
+  `checkin_url` varchar(512) NOT NULL DEFAULT '',
   `type` enum('eat','drink') DEFAULT NULL,
   `content` text,
   `canonical_url` varchar(255) DEFAULT NULL,

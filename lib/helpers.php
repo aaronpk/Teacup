@@ -195,6 +195,33 @@ function get_micropub_config(&$user) {
   );
 }
 
+function get_micropub_checkin(&$user) {
+  $r = micropub_get($user->micropub_endpoint, ['q' => 'source', 'limit' => 1, 'post-type' => 'checkin'], $user->access_token);
+  
+  $url = null;
+  $name = null;
+  $lat = null;
+  $lng = null;
+  
+  if($r['data'] && is_array($r['data'])) {
+    if(isset($r['data']['items'][0]['properties']['checkin'][0]) &&
+       isset($r['data']['items'][0]['properties']['checkin'][0]['properties']['name'][0])) {
+      $checkin = $r['data']['items'][0]['properties']['checkin'][0];
+      $url = $r['data']['items'][0]['properties']['url'][0];
+      $name = $checkin['properties']['name'][0];
+      $lat = $checkin['properties']['latitude'][0];
+      $lng = $checkin['properties']['longitude'][0];
+    }
+  }
+  
+  return [
+    'url' => $url,
+    'name' => $name,
+    'lat' => $lat,
+    'lng' => $lng,
+  ];
+}
+
 function build_static_map_url($latitude, $longitude, $height, $width, $zoom) {
   return '/map.png?marker[]=lat:' . $latitude . ';lng:' . $longitude . ';icon:small-green-cutout&width=' . $width . '&height=' . $height . '&zoom=' . $zoom;
 }
