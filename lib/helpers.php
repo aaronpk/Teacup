@@ -206,11 +206,18 @@ function get_micropub_checkin(&$user) {
   if($r['data'] && is_array($r['data'])) {
     if(isset($r['data']['items'][0]['properties']['checkin'][0]) &&
        isset($r['data']['items'][0]['properties']['checkin'][0]['properties']['name'][0])) {
-      $checkin = $r['data']['items'][0]['properties']['checkin'][0];
-      $url = $r['data']['items'][0]['properties']['url'][0];
-      $name = $checkin['properties']['name'][0];
-      $lat = $checkin['properties']['latitude'][0];
-      $lng = $checkin['properties']['longitude'][0];
+      
+      $item = $r['data']['items'][0];
+      $checkin = $item['properties']['checkin'][0];
+      
+      if(isset($item['properties']['published'][0]) 
+        && strtotime($item['properties']['published'][0]) > time() - 60*60*6) {
+      
+        $url = $r['data']['items'][0]['properties']['url'][0];
+        $name = $checkin['properties']['name'][0];
+        $lat = $checkin['properties']['latitude'][0];
+        $lng = $checkin['properties']['longitude'][0];
+      }
     }
   }
   
